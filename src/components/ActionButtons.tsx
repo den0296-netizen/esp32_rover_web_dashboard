@@ -3,6 +3,7 @@ import { BoltIcon, BoltSlashIcon, LockClosedIcon, LockOpenIcon } from '@heroicon
 type ActionButtonsProps = {
   flashlightOn: boolean;
   armed: boolean;
+  flashlightPosition: 'left' | 'right';
   onToggleFlashlight: () => void;
   onToggleArmed: () => void;
 };
@@ -10,12 +11,13 @@ type ActionButtonsProps = {
 function ActionButtons({
   flashlightOn,
   armed,
+  flashlightPosition,
   onToggleFlashlight,
   onToggleArmed,
 }: ActionButtonsProps) {
   return (
     <>
-      <div className="flash-light-toggle absolute left-5">
+      <div className={`flash-light-toggle absolute ${flashlightPosition === 'left' ? 'left-5' : 'right-5'}`}>
         <button type="button" className="flash-light-toggle__button" onClick={onToggleFlashlight}>
           {flashlightOn ? <BoltIcon className="size-12" /> : <BoltSlashIcon className="size-12" />}
         </button>

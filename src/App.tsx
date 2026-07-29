@@ -79,6 +79,7 @@ function App() {
         <ActionButtons
           flashlightOn={flashlightOn}
           armed={armed}
+          flashlightPosition={settings.flashlightPosition}
           onToggleFlashlight={() => setFlashlightOn((value) => !value)}
           onToggleArmed={() => setArmed((value) => !value)}
         />
