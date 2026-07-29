@@ -5,9 +5,10 @@ type JoystickProps = {
   onMove?: (steering: number, throttle: number) => void;
   onRelease?: () => void;
   position?: 'left' | 'right';
+  theme?: 'dark' | 'light';
 };
 
-function Joystick({ onMove, onRelease, position = 'right' }: JoystickProps) {
+function Joystick({ onMove, onRelease, position = 'right', theme = 'dark' }: JoystickProps) {
   const joystickZoneRef = useRef<HTMLDivElement>(null);
   const managerRef = useRef<ReturnType<typeof nipplejs.create> | null>(null);
 
@@ -19,7 +20,7 @@ function Joystick({ onMove, onRelease, position = 'right' }: JoystickProps) {
     const manager = nipplejs.create({
       zone: joystickZoneRef.current,
       mode: 'static',
-      color: '#0000ff78',
+      color: theme === 'dark' ? '#ffffffb6' : '#0000ff78',
       size: 150,
       position: {
         right: position === 'right' ? '120px' : undefined,
@@ -50,10 +51,10 @@ function Joystick({ onMove, onRelease, position = 'right' }: JoystickProps) {
       managerRef.current?.destroy();
       managerRef.current = null;
     };
-  }, [onMove, onRelease, position]);
+  }, [onMove, onRelease, position, theme]);
 
   return (
-      <div className="joystick-wrapper flex flex-wrap items-stretch content-stretch" ref={joystickZoneRef} />
+      <div className="joystick absolute top-0 left-0 bottom-0 right-0" ref={joystickZoneRef} />
     
   );
 }

@@ -63,7 +63,7 @@ function App() {
       return <ArrowPad onMove={handleJoystickMove} onRelease={handleJoystickRelease} position={settings.controlPosition} />;
     }
 
-    return <Joystick onMove={handleJoystickMove} onRelease={handleJoystickRelease} position={settings.controlPosition} />;
+    return <Joystick onMove={handleJoystickMove} onRelease={handleJoystickRelease} position={settings.controlPosition} theme={settings.theme} />;
   };
 
   return (
