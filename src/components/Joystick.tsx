@@ -21,6 +21,11 @@ function Joystick({ onMove, onRelease, position = 'right' }: JoystickProps) {
       mode: 'static',
       color: '#0000ff78',
       size: 150,
+      position: {
+        right: position === 'right' ? '120px' : undefined,
+        left: position === 'left' ? '120px' : undefined,
+        bottom: '120px'
+      }
     });
 
     managerRef.current = manager;
@@ -45,9 +50,12 @@ function Joystick({ onMove, onRelease, position = 'right' }: JoystickProps) {
       managerRef.current?.destroy();
       managerRef.current = null;
     };
-  }, [onMove, onRelease]);
+  }, [onMove, onRelease, position]);
 
-  return <div className={`joystick absolute bottom-30 ${position === 'left' ? 'left-8' : 'right-8'}`} ref={joystickZoneRef} />;
+  return (
+      <div className="joystick-wrapper flex flex-wrap items-stretch content-stretch" ref={joystickZoneRef} />
+    
+  );
 }
 
 export default Joystick;
