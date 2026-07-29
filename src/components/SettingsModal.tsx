@@ -1,13 +1,16 @@
 import { useState } from 'react';
+import { type AppSettings } from '../types/settings';
 
 type SettingsModalProps = {
   isOpen: boolean;
   onClose: () => void;
+  settings: AppSettings;
+  onSettingsChange: (settings: AppSettings) => void;
 };
 
 type TabKey = 'appearance' | 'rover' | 'network' | 'status' | 'about';
 
-function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
+function SettingsModal({ isOpen, onClose, settings, onSettingsChange }: SettingsModalProps) {
   const [activeTab, setActiveTab] = useState<TabKey>('appearance');
 
   if (!isOpen) {
@@ -73,7 +76,11 @@ function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 <div className="grid gap-4 md:grid-cols-2">
                   <div>
                     <label className="mb-1 block text-sm font-medium text-slate-300">Control type</label>
-                    <select className="w-full rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20">
+                    <select
+                      className="w-full rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20"
+                      value={settings.controlType}
+                      onChange={(event) => onSettingsChange({ ...settings, controlType: event.target.value as AppSettings['controlType'] })}
+                    >
                       <option value="joystick">Joystick</option>
                       <option value="arrows">Arrows</option>
                     </select>
@@ -82,11 +89,23 @@ function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                     <label className="mb-1 block text-sm font-medium text-slate-300">Control position</label>
                     <div className="flex gap-3">
                       <label className="flex flex-1 cursor-pointer items-center gap-2 rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-200">
-                        <input type="radio" name="controlPosition" value="left" defaultChecked />
+                        <input
+                          type="radio"
+                          name="controlPosition"
+                          value="left"
+                          checked={settings.controlPosition === 'left'}
+                          onChange={() => onSettingsChange({ ...settings, controlPosition: 'left' })}
+                        />
                         <span>Left</span>
                       </label>
                       <label className="flex flex-1 cursor-pointer items-center gap-2 rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-200">
-                        <input type="radio" name="controlPosition" value="right" />
+                        <input
+                          type="radio"
+                          name="controlPosition"
+                          value="right"
+                          checked={settings.controlPosition === 'right'}
+                          onChange={() => onSettingsChange({ ...settings, controlPosition: 'right' })}
+                        />
                         <span>Right</span>
                       </label>
                     </div>
@@ -95,11 +114,23 @@ function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                     <label className="mb-1 block text-sm font-medium text-slate-300">Flashlight position</label>
                     <div className="flex gap-3">
                       <label className="flex flex-1 cursor-pointer items-center gap-2 rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-200">
-                        <input type="radio" name="flashlightPosition" value="left" defaultChecked />
+                        <input
+                          type="radio"
+                          name="flashlightPosition"
+                          value="left"
+                          checked={settings.flashlightPosition === 'left'}
+                          onChange={() => onSettingsChange({ ...settings, flashlightPosition: 'left' })}
+                        />
                         <span>Left</span>
                       </label>
                       <label className="flex flex-1 cursor-pointer items-center gap-2 rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-200">
-                        <input type="radio" name="flashlightPosition" value="right" />
+                        <input
+                          type="radio"
+                          name="flashlightPosition"
+                          value="right"
+                          checked={settings.flashlightPosition === 'right'}
+                          onChange={() => onSettingsChange({ ...settings, flashlightPosition: 'right' })}
+                        />
                         <span>Right</span>
                       </label>
                     </div>
@@ -108,11 +139,23 @@ function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                     <label className="mb-1 block text-sm font-medium text-slate-300">Theme</label>
                     <div className="flex gap-3">
                       <label className="flex flex-1 cursor-pointer items-center gap-2 rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-200">
-                        <input type="radio" name="theme" value="dark" defaultChecked />
+                        <input
+                          type="radio"
+                          name="theme"
+                          value="dark"
+                          checked={settings.theme === 'dark'}
+                          onChange={() => onSettingsChange({ ...settings, theme: 'dark' })}
+                        />
                         <span>Dark</span>
                       </label>
                       <label className="flex flex-1 cursor-pointer items-center gap-2 rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-200">
-                        <input type="radio" name="theme" value="light" />
+                        <input
+                          type="radio"
+                          name="theme"
+                          value="light"
+                          checked={settings.theme === 'light'}
+                          onChange={() => onSettingsChange({ ...settings, theme: 'light' })}
+                        />
                         <span>Light</span>
                       </label>
                     </div>
@@ -127,15 +170,30 @@ function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 <div className="space-y-3">
                   <label className="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-200">
                     <span>Show battery status</span>
-                    <input type="checkbox" className="h-4 w-4 rounded border-slate-600 bg-slate-900 text-sky-500 focus:ring-sky-500" defaultChecked />
+                    <input
+                      type="checkbox"
+                      className="h-4 w-4 rounded border-slate-600 bg-slate-900 text-sky-500 focus:ring-sky-500"
+                      checked={settings.showBatteryStatus}
+                      onChange={() => onSettingsChange({ ...settings, showBatteryStatus: !settings.showBatteryStatus })}
+                    />
                   </label>
                   <label className="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-200">
                     <span>Show signal quality</span>
-                    <input type="checkbox" className="h-4 w-4 rounded border-slate-600 bg-slate-900 text-sky-500 focus:ring-sky-500" defaultChecked />
+                    <input
+                      type="checkbox"
+                      className="h-4 w-4 rounded border-slate-600 bg-slate-900 text-sky-500 focus:ring-sky-500"
+                      checked={settings.showSignalQuality}
+                      onChange={() => onSettingsChange({ ...settings, showSignalQuality: !settings.showSignalQuality })}
+                    />
                   </label>
                   <label className="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-200">
                     <span>Show video stream</span>
-                    <input type="checkbox" className="h-4 w-4 rounded border-slate-600 bg-slate-900 text-sky-500 focus:ring-sky-500" defaultChecked />
+                    <input
+                      type="checkbox"
+                      className="h-4 w-4 rounded border-slate-600 bg-slate-900 text-sky-500 focus:ring-sky-500"
+                      checked={settings.showVideoStream}
+                      onChange={() => onSettingsChange({ ...settings, showVideoStream: !settings.showVideoStream })}
+                    />
                   </label>
                 </div>
               </div>
@@ -151,6 +209,8 @@ function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                 type="number"
                 name="SpeedLimit"
                 id="SpeedLimit"
+                value={settings.speedLimit}
+                onChange={(event) => onSettingsChange({ ...settings, speedLimit: Number(event.target.value) })}
                 className="w-full rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20"
               />
             </div>
