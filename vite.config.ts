@@ -1,8 +1,10 @@
-import { defineConfig } from 'vite'
+import { defineConfig, type PluginOption } from 'vite'
 import react, { reactCompilerPreset } from '@vitejs/plugin-react'
 import babel from '@rolldown/plugin-babel'
 import tailwindcss from '@tailwindcss/vite'
 import viteCompression from 'vite-plugin-compression'
+
+const compressionPlugin = viteCompression as unknown as (options?: Record<string, unknown>) => PluginOption
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -14,7 +16,7 @@ export default defineConfig({
     tailwindcss(),
     // Enable compression only in production mode
     /* eslint disable-next-line */
-    viteCompression({
+    compressionPlugin({
       verbose: process.env.NODE_ENV === 'production',
       disable: process.env.NODE_ENV !== 'production',
       success: () => {
