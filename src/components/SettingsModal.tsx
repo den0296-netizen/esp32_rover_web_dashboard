@@ -1,17 +1,31 @@
+import { useState } from 'react';
+
 type SettingsModalProps = {
   isOpen: boolean;
   onClose: () => void;
 };
 
+type TabKey = 'appearance' | 'rover' | 'network' | 'status' | 'about';
+
 function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
+  const [activeTab, setActiveTab] = useState<TabKey>('appearance');
+
   if (!isOpen) {
     return null;
   }
 
+  const tabs: Array<{ key: TabKey; label: string }> = [
+    { key: 'appearance', label: 'Appearance' },
+    { key: 'rover', label: 'Rover' },
+    { key: 'network', label: 'Network' },
+    { key: 'status', label: 'Status' },
+    { key: 'about', label: 'About' },
+  ];
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 px-3 py-3 backdrop-blur-sm sm:px-4 sm:py-6">
       <div
-        className="flex max-h-[calc(100vh-1.5rem)] w-full max-w-md flex-col overflow-hidden rounded-2xl border border-slate-700/70 bg-slate-900/95 shadow-[0_20px_60px_rgba(0,0,0,0.45)] sm:max-h-[calc(100vh-3rem)]"
+        className="flex max-h-[calc(100vh-1.5rem)] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-slate-700/70 bg-slate-900/95 shadow-[0_20px_60px_rgba(0,0,0,0.45)] sm:max-h-[calc(100vh-3rem)]"
         role="dialog"
         aria-modal="true"
         aria-labelledby="settings-title"
@@ -32,60 +46,160 @@ function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
           </button>
         </div>
 
+        <div className="flex shrink-0 flex-wrap gap-2 border-b border-slate-800 px-4 py-3">
+          {tabs.map((tab) => (
+            <button
+              key={tab.key}
+              type="button"
+              onClick={() => setActiveTab(tab.key)}
+              className={`rounded-full px-3 py-2 text-sm font-medium transition ${
+                activeTab === tab.key
+                  ? 'bg-sky-500 text-slate-950'
+                  : 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
         <div className="flex-1 space-y-4 overflow-y-auto px-6 py-5 text-slate-200">
-          <div className="rounded-xl border border-slate-800 bg-slate-800/50 p-4">
-            <h3 className="mb-3 text-sm font-semibold uppercase tracking-[0.24em] text-slate-400">
-              Wi-Fi credentials
-            </h3>
-            <div className="space-y-4">
-              <div>
-                <label htmlFor="WiFiName" className="mb-1 block text-sm font-medium text-slate-300">
-                  Name
-                </label>
-                <input
-                  type="text"
-                  id="WiFiName"
-                  className="w-full rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20"
-                />
+          {activeTab === 'appearance' && (
+            <>
+              <div className="rounded-xl border border-slate-800 bg-slate-800/50 p-4">
+                <h3 className="mb-3 text-sm font-semibold uppercase tracking-[0.24em] text-slate-400">
+                  Controls
+                </h3>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div>
+                    <label className="mb-1 block text-sm font-medium text-slate-300">Control type</label>
+                    <select className="w-full rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20">
+                      <option value="joystick">Joystick</option>
+                      <option value="arrows">Arrows</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-sm font-medium text-slate-300">Control position</label>
+                    <div className="flex gap-3">
+                      <label className="flex flex-1 cursor-pointer items-center gap-2 rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-200">
+                        <input type="radio" name="controlPosition" value="left" defaultChecked />
+                        <span>Left</span>
+                      </label>
+                      <label className="flex flex-1 cursor-pointer items-center gap-2 rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-200">
+                        <input type="radio" name="controlPosition" value="right" />
+                        <span>Right</span>
+                      </label>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-sm font-medium text-slate-300">Flashlight position</label>
+                    <div className="flex gap-3">
+                      <label className="flex flex-1 cursor-pointer items-center gap-2 rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-200">
+                        <input type="radio" name="flashlightPosition" value="left" defaultChecked />
+                        <span>Left</span>
+                      </label>
+                      <label className="flex flex-1 cursor-pointer items-center gap-2 rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-200">
+                        <input type="radio" name="flashlightPosition" value="right" />
+                        <span>Right</span>
+                      </label>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-sm font-medium text-slate-300">Theme</label>
+                    <div className="flex gap-3">
+                      <label className="flex flex-1 cursor-pointer items-center gap-2 rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-200">
+                        <input type="radio" name="theme" value="dark" defaultChecked />
+                        <span>Dark</span>
+                      </label>
+                      <label className="flex flex-1 cursor-pointer items-center gap-2 rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-200">
+                        <input type="radio" name="theme" value="light" />
+                        <span>Light</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div>
-                <label htmlFor="WiFiPassword" className="mb-1 block text-sm font-medium text-slate-300">
-                  Password
-                </label>
-                <input
-                  type="password"
-                  id="WiFiPassword"
-                  className="w-full rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20"
-                />
+
+              <div className="rounded-xl border border-slate-800 bg-slate-800/50 p-4">
+                <h3 className="mb-3 text-sm font-semibold uppercase tracking-[0.24em] text-slate-400">
+                  Visibility
+                </h3>
+                <div className="space-y-3">
+                  <label className="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-200">
+                    <span>Show battery status</span>
+                    <input type="checkbox" className="h-4 w-4 rounded border-slate-600 bg-slate-900 text-sky-500 focus:ring-sky-500" defaultChecked />
+                  </label>
+                  <label className="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-200">
+                    <span>Show signal quality</span>
+                    <input type="checkbox" className="h-4 w-4 rounded border-slate-600 bg-slate-900 text-sky-500 focus:ring-sky-500" defaultChecked />
+                  </label>
+                  <label className="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-200">
+                    <span>Show video stream</span>
+                    <input type="checkbox" className="h-4 w-4 rounded border-slate-600 bg-slate-900 text-sky-500 focus:ring-sky-500" defaultChecked />
+                  </label>
+                </div>
+              </div>
+            </>
+          )}
+
+          {activeTab === 'rover' && (
+            <div className="rounded-xl border border-slate-800 bg-slate-800/50 p-4">
+              <label htmlFor="SpeedLimit" className="mb-1 block text-sm font-medium text-slate-300">
+                Speed limit
+              </label>
+              <input
+                type="number"
+                name="SpeedLimit"
+                id="SpeedLimit"
+                className="w-full rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20"
+              />
+            </div>
+          )}
+
+          {activeTab === 'network' && (
+            <div className="rounded-xl border border-slate-800 bg-slate-800/50 p-4">
+              <div className="space-y-4">
+                <div>
+                  <label htmlFor="WiFiName" className="mb-1 block text-sm font-medium text-slate-300">
+                    Wi-Fi Name (SSID)
+                  </label>
+                  <input
+                    type="text"
+                    id="WiFiName"
+                    className="w-full rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="WiFiPassword" className="mb-1 block text-sm font-medium text-slate-300">
+                    Wi-Fi Password
+                  </label>
+                  <input
+                    type="password"
+                    id="WiFiPassword"
+                    className="w-full rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20"
+                  />
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
-          <div className="rounded-xl border border-slate-800 bg-slate-800/50 p-4">
-            <label htmlFor="SpeedLimit" className="mb-1 block text-sm font-medium text-slate-300">
-              Speed limit
-            </label>
-            <input
-              type="number"
-              name="SpeedLimit"
-              id="SpeedLimit"
-              className="w-full rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-100 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20"
-            />
-          </div>
-
-          <div className="rounded-xl border border-slate-800 bg-slate-800/50 p-4">
-            <span className="mb-3 block text-sm font-medium text-slate-300">Joystick position</span>
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <label className="flex flex-1 cursor-pointer items-center gap-3 rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-200 transition hover:border-sky-500/60">
-                <input type="radio" name="joystickPosition" value="left" className="h-4 w-4 border-slate-600 bg-slate-900 text-sky-500 focus:ring-sky-500" defaultChecked />
-                <span>Left</span>
-              </label>
-              <label className="flex flex-1 cursor-pointer items-center gap-3 rounded-lg border border-slate-700 bg-slate-950/70 px-3 py-2 text-sm text-slate-200 transition hover:border-sky-500/60">
-                <input type="radio" name="joystickPosition" value="right" className="h-4 w-4 border-slate-600 bg-slate-900 text-sky-500 focus:ring-sky-500" />
-                <span>Right</span>
-              </label>
+          {activeTab === 'status' && (
+            <div className="rounded-xl border border-slate-800 bg-slate-800/50 p-4 text-sm text-slate-300">
+              <p className="mb-2 font-medium text-slate-100">System status</p>
+              <p className="leading-6 text-slate-400">No status information available yet. This section will be populated with telemetry, connection health, and rover diagnostics in a future update.</p>
             </div>
-          </div>
+          )}
+
+          {activeTab === 'about' && (
+            <div className="rounded-xl border border-slate-800 bg-slate-800/50 p-4 text-sm leading-7 text-slate-300">
+              <p>
+                This rover dashboard provides a compact control surface for monitoring and operating a remote rover from a web browser. The interface is designed to keep core telemetry visible while giving quick access to controls such as the flashlight, arm state, and joystick input. The settings panel lets you personalize the experience to match your preferred layout and visibility needs, whether you are using it in a lab, on the field, or while testing from a mobile device.
+              </p>
+              <p className="mt-3">
+                The design focuses on clarity, responsiveness, and a modern touch-friendly experience. Every section is built to stay usable on smaller screens, with scrollable content that helps preserve the full range of configuration options without sacrificing readability.
+              </p>
+            </div>
+          )}
         </div>
 
         <div className="flex shrink-0 justify-end gap-3 border-t border-slate-800 px-6 py-4">
