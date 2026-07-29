@@ -44,8 +44,9 @@ function App() {
   }, [settings]);
 
   const handleJoystickMove = (steering: number, throttle: number) => {
-    const adjustedThrottle = deadzone(Math.max(-100, Math.min(100, throttle)));
-    const adjustedSteering = deadzone(Math.max(-100, Math.min(100, steering)));
+    const speedLimit = Math.max(0, Math.min(100, settings.speedLimit));
+    const adjustedThrottle = deadzone(Math.max(-speedLimit, Math.min(speedLimit, throttle)));
+    const adjustedSteering = deadzone(Math.max(-speedLimit, Math.min(speedLimit, steering)));
 
     console.log('Joystick move:', adjustedSteering, adjustedThrottle);
   };
@@ -55,12 +56,13 @@ function App() {
   };
 
   const handleSettingsChange = (nextSettings: AppSettings) => {
-    setSettings(nextSettings);
+    const sanitizedSpeedLimit = Math.max(0, Math.min(100, Math.round(nextSettings.speedLimit)));
+    setSettings({ ...nextSettings, speedLimit: sanitizedSpeedLimit });
   };
 
   const renderControlPad = () => {
     if (settings.controlType === 'arrows') {
-      return <ArrowPad onMove={handleJoystickMove} onRelease={handleJoystickRelease} position={settings.controlPosition} />;
+      return <ArrowPad onMove={handleJoystickMove} onRelease={handleJoystickRelease} position={settings.controlPosition} theme={settings.theme} />;
     }
 
     return <Joystick onMove={handleJoystickMove} onRelease={handleJoystickRelease} position={settings.controlPosition} theme={settings.theme} />;
