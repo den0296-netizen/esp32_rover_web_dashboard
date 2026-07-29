@@ -69,7 +69,7 @@ function App() {
   return (
     <div className={`wrapper relative flex h-screen w-screen ${settings.theme === 'light' ? 'bg-slate-100 text-slate-900' : 'bg-slate-950 text-slate-100'}`}>
       <div className="osd relative flex h-full w-full flex-1 flex-col items-center justify-center">
-        <VideoFeed src={videoStream} />
+        {settings.showVideoStream && <VideoFeed src={videoStream} />}
 
         {settings.showBatteryStatus && <BatteryStatus voltage={batteryVoltage} current={batteryCurrent} remaining={batteryRemaining} />}
         {settings.showSignalQuality && <WiFiStatus signalQuality={100} />}
