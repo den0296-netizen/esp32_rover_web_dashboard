@@ -60,10 +60,10 @@ function App() {
 
   const renderControlPad = () => {
     if (settings.controlType === 'arrows') {
-      return <ArrowPad onMove={handleJoystickMove} onRelease={handleJoystickRelease} />;
+      return <ArrowPad onMove={handleJoystickMove} onRelease={handleJoystickRelease} position={settings.controlPosition} />;
     }
 
-    return <Joystick onMove={handleJoystickMove} onRelease={handleJoystickRelease} />;
+    return <Joystick onMove={handleJoystickMove} onRelease={handleJoystickRelease} position={settings.controlPosition} />;
   };
 
   return (

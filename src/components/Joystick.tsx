@@ -4,9 +4,10 @@ import nipplejs from 'nipplejs';
 type JoystickProps = {
   onMove?: (steering: number, throttle: number) => void;
   onRelease?: () => void;
+  position?: 'left' | 'right';
 };
 
-function Joystick({ onMove, onRelease }: JoystickProps) {
+function Joystick({ onMove, onRelease, position = 'right' }: JoystickProps) {
   const joystickZoneRef = useRef<HTMLDivElement>(null);
   const managerRef = useRef<ReturnType<typeof nipplejs.create> | null>(null);
 
@@ -46,7 +47,7 @@ function Joystick({ onMove, onRelease }: JoystickProps) {
     };
   }, [onMove, onRelease]);
 
-  return <div className="joystick absolute bottom-30 right-30" ref={joystickZoneRef} />;
+  return <div className={`joystick absolute bottom-30 ${position === 'left' ? 'left-8' : 'right-8'}`} ref={joystickZoneRef} />;
 }
 
 export default Joystick;

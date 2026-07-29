@@ -1,15 +1,16 @@
 type ArrowPadProps = {
   onMove?: (steering: number, throttle: number) => void;
   onRelease?: () => void;
+  position?: 'left' | 'right';
 };
 
-function ArrowPad({ onMove, onRelease }: ArrowPadProps) {
+function ArrowPad({ onMove, onRelease, position = 'right' }: ArrowPadProps) {
   const sendDirection = (steering: number, throttle: number) => {
     onMove?.(steering, throttle);
   };
 
   return (
-    <div className="absolute bottom-8 right-8 flex flex-col items-center gap-2 rounded-3xl border border-slate-700/70 bg-slate-900/70 p-3 shadow-lg backdrop-blur-sm">
+    <div className={`absolute bottom-8 ${position === 'left' ? 'left-8' : 'right-8'} flex flex-col items-center gap-2 rounded-3xl border border-slate-700/70 bg-slate-900/70 p-3 shadow-lg backdrop-blur-sm`}>
       <div className="flex gap-2">
         <div className="h-12 w-12" />
         <button
