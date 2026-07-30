@@ -25,9 +25,9 @@ function ArrowPad({ onMove, onRelease, position = 'right', theme = 'dark' }: Arr
         <button
           type="button"
           className={`flex h-12 w-12 items-center justify-center rounded-xl border transition active:scale-95 ${buttonClasses}`}
-          onPointerDown={() => sendDirection(0, 100)}
-          onPointerUp={onRelease}
-          onPointerLeave={onRelease}
+          onMouseDown={() => sendDirection(0, 100)}
+          onMouseUp={onRelease}
+          onMouseLeave={onRelease}
           aria-label="Move forward"
         >
           ↑

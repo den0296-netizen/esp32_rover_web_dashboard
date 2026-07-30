@@ -11,11 +11,21 @@ type JoystickProps = {
 function Joystick({ onMove, onRelease, position = 'right', theme = 'dark' }: JoystickProps) {
   const joystickZoneRef = useRef<HTMLDivElement>(null);
   const managerRef = useRef<ReturnType<typeof nipplejs.create> | null>(null);
+  const onMoveRef = useRef(onMove);
+  const onReleaseRef = useRef(onRelease);
+
+  useEffect(() => {
+    onMoveRef.current = onMove;
+    onReleaseRef.current = onRelease;
+  }, [onMove, onRelease]);
 
   useEffect(() => {
     if (!joystickZoneRef.current) {
       return;
     }
+
+    managerRef.current?.destroy();
+    managerRef.current = null;
 
     const manager = nipplejs.create({
       zone: joystickZoneRef.current,
@@ -40,22 +50,21 @@ function Joystick({ onMove, onRelease, position = 'right', theme = 'dark' }: Joy
       const steering = Math.round(vector.x * 100);
       const throttle = Math.round(vector.y * 100);
 
-      onMove?.(steering, throttle);
+      onMoveRef.current?.(steering, throttle);
     });
 
     manager.on('end', () => {
-      onRelease?.();
+      onReleaseRef.current?.();
     });
 
     return () => {
       managerRef.current?.destroy();
       managerRef.current = null;
     };
-  }, [onMove, onRelease, position, theme]);
+  }, [position, theme]);
 
   return (
-      <div className="joystick absolute top-0 left-0 bottom-0 right-0" ref={joystickZoneRef} />
-    
+    <div className="joystick absolute top-0 left-0 bottom-0 right-0" ref={joystickZoneRef} />
   );
 }
 
