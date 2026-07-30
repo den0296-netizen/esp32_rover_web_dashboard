@@ -6,12 +6,12 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:esp32": "tsc -b && vite build --outDir ../esp32_rover_cam/web/dist",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
-    "@nipple/root": "file:../nipplejs",
     "nipplejs": "^1.0.4",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
