@@ -1,9 +1,13 @@
+import { useEffect } from "react";
+
 type ArrowPadProps = {
   onMove?: (steering: number, throttle: number) => void;
   onRelease?: () => void;
   position?: 'left' | 'right';
   theme?: 'dark' | 'light';
 };
+
+const KEYBOARD_ARROWS = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
 
 function ArrowPad({ onMove, onRelease, position = 'right', theme = 'dark' }: ArrowPadProps) {
   const isDarkTheme = theme === 'dark';
@@ -18,6 +22,37 @@ function ArrowPad({ onMove, onRelease, position = 'right', theme = 'dark' }: Arr
     onMove?.(steering, throttle);
   };
 
+  useEffect(() => {
+    const keydownHandler = (e: KeyboardEvent) => {
+      switch(e.key) {
+        case KEYBOARD_ARROWS[0]:
+          sendDirection(0, 100)
+          break;
+        case KEYBOARD_ARROWS[1]:
+          sendDirection(0, -100)
+          break;
+        case KEYBOARD_ARROWS[2]:
+          sendDirection(-100, 0)
+          break;
+        case KEYBOARD_ARROWS[3]:
+          sendDirection(100, 0)
+          break;
+      }
+    };
+    const keyupHandler = (e: KeyboardEvent) => {
+      if (KEYBOARD_ARROWS.includes(e.key)) {
+        sendDirection(0, 0);
+      }
+    };
+    document.addEventListener('keydown', keydownHandler);
+    document.addEventListener('keyup', keyupHandler);
+
+    return () => {
+      document.removeEventListener('keydown', keydownHandler);
+      document.removeEventListener('keyup', keyupHandler);
+    };
+  }, []);
+
   return (
     <div className={`absolute bottom-8 ${position === 'left' ? 'left-8' : 'right-8'} flex flex-col items-center gap-2 rounded-3xl border p-3 shadow-lg backdrop-blur-sm ${containerClasses}`}>
       <div className="flex gap-2">
@@ -25,9 +60,9 @@ function ArrowPad({ onMove, onRelease, position = 'right', theme = 'dark' }: Arr
         <button
           type="button"
           className={`flex h-12 w-12 items-center justify-center rounded-xl border transition active:scale-95 ${buttonClasses}`}
-          onMouseDown={() => sendDirection(0, 100)}
-          onMouseUp={onRelease}
-          onMouseLeave={onRelease}
+          onPointerDown={() => sendDirection(0, 100)}
+          onPointerUp={onRelease}
+          onPointerLeave={onRelease}
           aria-label="Move forward"
         >
           ↑
