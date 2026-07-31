@@ -11,30 +11,25 @@ import VideoFeed from './components/VideoFeed';
 import WiFiStatus from './components/WiFiStatus';
 import { defaultSettings, type AppSettings } from './types/settings';
 import { deadzone } from './utils';
-import type { WebSocketActionMessageType, WebSocketEventMessageType } from './types/WebSocketTypes';
 import { useAppWebSocket } from './hooks/useAppWebSocket';
 import { useAppStore } from './store';
 
 const STORAGE_KEY = 'rover-settings';
-let control_seq = 0;
+
 const videoStream = import.meta.env.VITE_STREAM_URL;
 const websocketUrl = import.meta.env.VITE_WS_URL + '?token=valid';
 function App() {
   const {
-    isConnected,
-    authenticateWifi,
     toggleFlashlight,
     toggleArm,
     drive
   } = useAppWebSocket(websocketUrl);
 
   // Selectors from state slices
-  const telemetry = useAppStore((state) => state.telemetry);
   const flashlightOn = useAppStore((state) => state.flashlightOn);
   const isArmed = useAppStore((state) => state.isArmed);
   const batteryStatus = useAppStore((state) => state.batteryStatus);
   const wifiSignal = useAppStore((state) => state.wifiSignal);
-  const networkStatus = useAppStore((state) => state.networkStatus);
 
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [settings, setSettings] = useState<AppSettings>(() => {

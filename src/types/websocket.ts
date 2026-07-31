@@ -1,3 +1,10 @@
+// --- Base Protocol Header ---
+export interface WsMessageHeader {
+  version: number;
+  seq: number;
+}
+
+// --- Payload Types ---
 export interface WifiAuthPayload {
   ssid: string;
   password?: string;
@@ -51,20 +58,25 @@ export interface TelemetryData {
   [key: string]: unknown;
 }
 
-// Outbound actions
-export type ClientAction =
+// --- Outbound Actions (Client -> Server) ---
+export type RawClientAction =
   | { action: 'wifi_authenticate'; payload: WifiAuthPayload }
   | { action: 'toggle_flashlight' }
   | { action: 'arm_toggle' }
   | { action: 'drive'; payload: DrivePayload };
 
+// Complete outbound message with headers
+export type ClientAction = WsMessageHeader & RawClientAction;
+
 // Inbound events
-export type ServerEvent =
-  | { event: 'wifi_authentication'; payload: WifiAuthResult }
-  | { event: 'toggle_flashlight'; payload: FlashlightResult }
-  | { event: 'arm_toggle'; payload: ArmResult }
-  | { event: 'battery_status'; payload: BatteryStatusPayload }
-  | { event: 'wifi_signal'; payload: WifiSignalPayload }
-  | { event: 'network_status'; payload: NetworkStatusPayload }
-  | { event: 'network_info'; payload: NetworkInfoPayload }
-  | { event: 'telemetry'; payload: TelemetryData };
+export type ServerEvent = WsMessageHeader &
+  (
+    | { event: 'wifi_authentication'; payload: WifiAuthResult }
+    | { event: 'toggle_flashlight'; payload: FlashlightResult }
+    | { event: 'arm_toggle'; payload: ArmResult }
+    | { event: 'battery_status'; payload: BatteryStatusPayload }
+    | { event: 'wifi_signal'; payload: WifiSignalPayload }
+    | { event: 'network_status'; payload: NetworkStatusPayload }
+    | { event: 'network_info'; payload: NetworkInfoPayload }
+    | { event: 'telemetry'; payload: TelemetryData }
+  );

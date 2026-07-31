@@ -1,6 +1,6 @@
 import type { StateCreator } from 'zustand';
 import type { RootState } from '../index';
-import type { WifiAuthPayload, WifiAuthResult } from '../../types/websocket';
+import type { WifiAuthResult } from '../../types/websocket';
 
 export interface WifiSlice {
   wifiAuthResult: WifiAuthResult | null;

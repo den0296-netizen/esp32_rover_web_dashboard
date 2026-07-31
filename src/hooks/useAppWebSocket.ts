@@ -2,9 +2,14 @@ import useWebSocket, { ReadyState } from 'react-use-websocket';
 // import { useWebSocket } from 'react-use-websocket/dist/lib/use-websocket';
 // import { ReadyState } from 'react-use-websocket/dist/lib/constants';
 import { useAppStore } from '../store';
-import type { ClientAction, DrivePayload, ServerEvent, WifiAuthPayload } from '../types/websocket';
+import type { DrivePayload, RawClientAction, ServerEvent, WifiAuthPayload } from '../types/websocket';
+import { useRef } from 'react';
+
+const CURRENT_API_VERSION = 1;
 
 export function useAppWebSocket(socketUrl: string) {
+  // Local sequence counter reference across renders
+  const seqRef = useRef<number>(1);
   // Pull handler functions from Zustand
   const handleWifiAuthResponse = useAppStore((state) => state.handleWifiAuthResponse);
   const handleFlashlightResponse = useAppStore((state) => state.handleFlashlightResponse);
@@ -21,6 +26,9 @@ export function useAppWebSocket(socketUrl: string) {
     onMessage: (event) => {
       try {
         const data: ServerEvent = JSON.parse(event.data);
+
+        // Optional log or check sequence number / API version
+        console.debug(`[WS Received] seq: ${data.seq}, version: ${data.version}`);
 
         switch (data.event) {
           case 'wifi_authentication':
@@ -65,8 +73,15 @@ export function useAppWebSocket(socketUrl: string) {
     shouldReconnect: () => true, // Automatically reconnect
   });
 
-  // Action helpers to send structured JSON actions
-  const sendAction = (actionData: ClientAction) => sendJsonMessage(actionData);
+  // Automatically injects version and auto-incrementing seq into outgoing actions
+  const sendAction = (rawAction: RawClientAction, version = CURRENT_API_VERSION) => {
+    const currentSeq = seqRef.current++;
+    sendJsonMessage({
+      version,
+      seq: currentSeq,
+      ...rawAction,
+    });
+  };
 
   const authenticateWifi = (payload: WifiAuthPayload) => {
     setAuthenticatingWifi(true);
