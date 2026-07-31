@@ -1,8 +1,6 @@
 
 import { useEffect, useState } from 'react';
 import { CogIcon } from '@heroicons/react/24/solid';
-import { useWebSocket } from 'react-use-websocket/dist/lib/use-websocket';
-import { ReadyState } from 'react-use-websocket/dist/lib/constants';
 import './App.css';
 import ActionButtons from './components/ActionButtons';
 import ArrowPad from './components/ArrowPad';
@@ -14,13 +12,30 @@ import WiFiStatus from './components/WiFiStatus';
 import { defaultSettings, type AppSettings } from './types/settings';
 import { deadzone } from './utils';
 import type { WebSocketActionMessageType, WebSocketEventMessageType } from './types/WebSocketTypes';
+import { useAppWebSocket } from './hooks/useAppWebSocket';
+import { useAppStore } from './store';
 
 const STORAGE_KEY = 'rover-settings';
 let control_seq = 0;
-
+const videoStream = import.meta.env.VITE_STREAM_URL;
+const websocketUrl = import.meta.env.VITE_WS_URL + '?token=valid';
 function App() {
-  const videoStream = import.meta.env.VITE_STREAM_URL as string | undefined;
-  const websocketUrl = import.meta.env.VITE_WS_URL + '?token=valid' as string | undefined;
+  const {
+    isConnected,
+    authenticateWifi,
+    toggleFlashlight,
+    toggleArm,
+    drive
+  } = useAppWebSocket(websocketUrl);
+
+  // Selectors from state slices
+  const telemetry = useAppStore((state) => state.telemetry);
+  const flashlightOn = useAppStore((state) => state.flashlightOn);
+  const isArmed = useAppStore((state) => state.isArmed);
+  const batteryStatus = useAppStore((state) => state.batteryStatus);
+  const wifiSignal = useAppStore((state) => state.wifiSignal);
+  const networkStatus = useAppStore((state) => state.networkStatus);
+
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [settings, setSettings] = useState<AppSettings>(() => {
     if (typeof window === 'undefined') {
@@ -39,22 +54,9 @@ function App() {
     }
   });
 
-  const { readyState, sendMessage, sendJsonMessage, lastJsonMessage } = useWebSocket<WebSocketEventMessageType>(websocketUrl ?? '', {
-    shouldReconnect: () => true,
-    reconnectAttempts: 5,
-    reconnectInterval: 1000,
-    share: true,
-  });
-
   useEffect(() => {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
   }, [settings]);
-
-  useEffect(() => {
-    if (readyState === ReadyState.OPEN && websocketUrl) {
-      sendMessage(JSON.stringify({ type: 'status' }));
-    }
-  }, [readyState, sendMessage, websocketUrl]);
 
   const handleJoystickMove = (steering: number, throttle: number) => {
     const speedLimit = Math.max(0, Math.min(100, settings.speedLimit));
@@ -62,23 +64,16 @@ function App() {
     const adjustedSteering = deadzone(Math.max(-speedLimit, Math.min(speedLimit, steering)));
 
     console.log('Joystick move:', adjustedSteering, adjustedThrottle);
-    sendJsonMessage<WebSocketActionMessageType>({
-        version: 1,
-        action: "control",
-        seq: control_seq++,
-        payload: {
-          throttle: adjustedThrottle,
-          steering: adjustedSteering
-        }
+    drive({
+      throttle: adjustedThrottle,
+      steering: adjustedSteering
     });
   };
 
   const handleJoystickRelease = () => {
-    sendJsonMessage({
-        type: "control",
-        seq: control_seq++,
-        throttle: 0,
-        steering: 0
+    drive({
+      throttle: 0,
+      steering: 0
     });
   };
 
@@ -95,25 +90,22 @@ function App() {
     return <Joystick onMove={handleJoystickMove} onRelease={handleJoystickRelease} position={settings.controlPosition} theme={settings.theme} />;
   };
 
-  const handleToggleFlashlight = () => sendJsonMessage({ type: "flash_toggle" });
-  const handleToggleArmed = () => sendJsonMessage({ type: "arm_toggle" });
-
   return (
     <div className={`wrapper relative flex h-screen w-screen ${settings.theme === 'light' ? 'bg-slate-100 text-slate-900' : 'bg-slate-950 text-slate-100'}`}>
       <div className="osd relative flex h-full w-full flex-1 flex-col items-center justify-center">
         {settings.showVideoStream ? <VideoFeed src={videoStream} />: <h2>Video stream is disabled</h2>}
 
-        {settings.showBatteryStatus && <BatteryStatus voltage={lastJsonMessage?.payload?.battery_voltage} current={lastJsonMessage?.payload?.battery_current} remaining={lastJsonMessage?.payload?.battery_remaining ?? 0} />}
-        {settings.showSignalQuality && <WiFiStatus rssi={lastJsonMessage?.payload?.wifi_rssi} />}
+        {settings.showBatteryStatus && <BatteryStatus voltage={batteryStatus.voltage} current={batteryStatus.current} remaining={batteryStatus.charge} />}
+        {settings.showSignalQuality && <WiFiStatus rssi={wifiSignal.rssi} />}
 
         {renderControlPad()}
 
         <ActionButtons
-          flashlightOn={lastJsonMessage?.payload?.flash_on}
-          armed={lastJsonMessage?.payload?.armed}
+          flashlightOn={flashlightOn}
+          armed={isArmed}
           flashlightPosition={settings.flashlightPosition}
-          onToggleFlashlight={handleToggleFlashlight}
-          onToggleArmed={handleToggleArmed}
+          onToggleFlashlight={toggleFlashlight}
+          onToggleArmed={toggleArm}
         />
 
         <div className="settings absolute left-5 top-5">
