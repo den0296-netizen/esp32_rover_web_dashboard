@@ -12,8 +12,8 @@ import SettingsModal from './components/SettingsModal';
 import VideoFeed from './components/VideoFeed';
 import WiFiStatus from './components/WiFiStatus';
 import { defaultSettings, type AppSettings } from './types/settings';
-import { type RoverTelemetryPayload } from './types/telemetry';
 import { deadzone } from './utils';
+import type { WebSocketActionMessageType, WebSocketEventMessageType } from './types/WebSocketTypes';
 
 const STORAGE_KEY = 'rover-settings';
 let control_seq = 0;
@@ -39,7 +39,7 @@ function App() {
     }
   });
 
-  const { readyState, sendMessage, sendJsonMessage, lastJsonMessage } = useWebSocket<RoverTelemetryPayload>(websocketUrl ?? '', {
+  const { readyState, sendMessage, sendJsonMessage, lastJsonMessage } = useWebSocket<WebSocketEventMessageType>(websocketUrl ?? '', {
     shouldReconnect: () => true,
     reconnectAttempts: 5,
     reconnectInterval: 1000,
@@ -62,11 +62,14 @@ function App() {
     const adjustedSteering = deadzone(Math.max(-speedLimit, Math.min(speedLimit, steering)));
 
     console.log('Joystick move:', adjustedSteering, adjustedThrottle);
-    sendJsonMessage({
-        type: "control",
+    sendJsonMessage<WebSocketActionMessageType>({
+        version: 1,
+        action: "control",
         seq: control_seq++,
-        throttle: adjustedThrottle,
-        steering: adjustedSteering
+        payload: {
+          throttle: adjustedThrottle,
+          steering: adjustedSteering
+        }
     });
   };
 
@@ -100,14 +103,14 @@ function App() {
       <div className="osd relative flex h-full w-full flex-1 flex-col items-center justify-center">
         {settings.showVideoStream ? <VideoFeed src={videoStream} />: <h2>Video stream is disabled</h2>}
 
-        {settings.showBatteryStatus && <BatteryStatus voltage={lastJsonMessage?.battery_voltage} current={lastJsonMessage?.battery_current} remaining={lastJsonMessage?.battery_remaining ?? 0} />}
-        {settings.showSignalQuality && <WiFiStatus rssi={lastJsonMessage?.wifi_rssi} />}
+        {settings.showBatteryStatus && <BatteryStatus voltage={lastJsonMessage?.payload?.battery_voltage} current={lastJsonMessage?.payload?.battery_current} remaining={lastJsonMessage?.payload?.battery_remaining ?? 0} />}
+        {settings.showSignalQuality && <WiFiStatus rssi={lastJsonMessage?.payload?.wifi_rssi} />}
 
         {renderControlPad()}
 
         <ActionButtons
-          flashlightOn={lastJsonMessage?.flash_on}
-          armed={lastJsonMessage?.armed}
+          flashlightOn={lastJsonMessage?.payload?.flash_on}
+          armed={lastJsonMessage?.payload?.armed}
           flashlightPosition={settings.flashlightPosition}
           onToggleFlashlight={handleToggleFlashlight}
           onToggleArmed={handleToggleArmed}

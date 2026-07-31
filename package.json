@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "build:esp32": "tsc -b && vite build --outDir ../esp32_rover_cam/web/dist",
+    "build:esp32": "tsc -b && vite build --mode=embedded --outDir ../esp32_rover_cam/web/dist --emptyOutDir",
     "lint": "eslint .",
     "preview": "vite preview"
   },

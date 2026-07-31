@@ -44,7 +44,7 @@ function SettingsModal({ isOpen, onClose, settings, onSettingsChange }: Settings
   const buttonHoverClasses = isDarkTheme ? 'hover:bg-slate-800 hover:text-white' : 'hover:bg-slate-200 hover:text-slate-900';
 
   return (
-    <div className={`fixed inset-0 z-50 flex items-center justify-center ${isDarkTheme ? 'bg-slate-950/70' : 'bg-slate-900/40'} px-3 py-3 backdrop-blur-sm sm:px-4 sm:py-6`}>
+    <div className={`fixed inset-0 z-1000 flex items-center justify-center ${isDarkTheme ? 'bg-slate-950/70' : 'bg-slate-900/40'} px-3 py-3 backdrop-blur-sm sm:px-4 sm:py-6`}>
       <div
         className={`flex max-h-[calc(100vh-1.5rem)] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border shadow-[0_20px_60px_rgba(0,0,0,0.45)] sm:max-h-[calc(100vh-3rem)] ${shellClasses}`}
         role="dialog"
