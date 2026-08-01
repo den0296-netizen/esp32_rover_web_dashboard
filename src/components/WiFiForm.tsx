@@ -1,3 +1,4 @@
+import type { WifiAuthResult } from "../types/websocket";
 
 interface WiFiFormProps {
     panelClasses: string;
@@ -5,6 +6,9 @@ interface WiFiFormProps {
     secondaryTextClasses: string;
     buttonHoverClasses: string;
     isDarkTheme: boolean;
+    onConnect: (ssid: string, password: string) => void;
+    connecting: boolean;
+    connectResult: WifiAuthResult | null;
 }
 
 function WiFiForm({
@@ -14,6 +18,10 @@ function WiFiForm({
     buttonHoverClasses,
     isDarkTheme
 }: WiFiFormProps) {
+
+    const handleConnect = () => {
+      onConnect(ssid, password);
+    }
 
     return (
         <>
@@ -43,6 +51,7 @@ function WiFiForm({
                     <button
                         type="button"
                         className="rounded-full bg-sky-500 px-4 py-2 text-sm font-semibold text-slate-950 shadow-lg shadow-sky-500/20 transition hover:bg-sky-400"
+                        onClick={handleConnect}
                     >
                         Connect
                     </button>

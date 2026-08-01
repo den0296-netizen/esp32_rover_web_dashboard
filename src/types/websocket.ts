@@ -61,7 +61,7 @@ export interface TelemetryData {
 // --- Outbound Actions (Client -> Server) ---
 export type RawClientAction =
   | { action: 'wifi_authenticate'; payload: WifiAuthPayload }
-  | { action: 'toggle_flashlight' }
+  | { action: 'flashlight_toggle' }
   | { action: 'arm_toggle' }
   | { action: 'drive'; payload: DrivePayload };
 
@@ -72,7 +72,7 @@ export type ClientAction = WsMessageHeader & RawClientAction;
 export type ServerEvent = WsMessageHeader &
   (
     | { event: 'wifi_authentication'; payload: WifiAuthResult }
-    | { event: 'toggle_flashlight'; payload: FlashlightResult }
+    | { event: 'flashlight_toggle'; payload: FlashlightResult }
     | { event: 'arm_toggle'; payload: ArmResult }
     | { event: 'battery_status'; payload: BatteryStatusPayload }
     | { event: 'wifi_signal'; payload: WifiSignalPayload }

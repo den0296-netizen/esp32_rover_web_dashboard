@@ -14,13 +14,12 @@ import { useAppWebSocket } from './hooks/useAppWebSocket';
 import { useAppStore } from './store';
 
 const videoStream = import.meta.env.VITE_STREAM_URL;
-const websocketUrl = import.meta.env.VITE_WS_URL + '?token=valid';
 function App() {
   const {
     toggleFlashlight,
     toggleArm,
     drive
-  } = useAppWebSocket(websocketUrl);
+  } = useAppWebSocket(import.meta.env.VITE_WS_URL + '?token=valid');
 
   // Selectors from state slices
   const appearance = useAppStore((state) => state.appearance);

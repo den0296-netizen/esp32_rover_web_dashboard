@@ -35,7 +35,7 @@ export function useAppWebSocket(socketUrl: string) {
             handleWifiAuthResponse(data.payload);
             break;
 
-          case 'toggle_flashlight':
+          case 'flashlight_toggle':
             handleFlashlightResponse(data.payload);
             break;
 
@@ -89,7 +89,7 @@ export function useAppWebSocket(socketUrl: string) {
   };
 
   const toggleFlashlight = () => {
-    sendAction({ action: 'toggle_flashlight' });
+    sendAction({ action: 'flashlight_toggle' });
   };
 
   const toggleArm = () => {

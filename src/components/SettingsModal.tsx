@@ -1,19 +1,30 @@
 import { useState } from 'react';
 import { Tabs } from './Tabs';
 import { useAppStore } from '../store';
-import type { ControlType } from '../types/appearance';
 import AppearanceForm from './AppearanceForm';
 import RoverSettingsForm from './RoverSettingsForm';
 import WiFiForm from './WiFiForm';
+import { useAppWebSocket } from '../hooks/useAppWebSocket';
 
 type SettingsModalProps = {
   isOpen: boolean;
   onClose: () => void;
 };
 
-type TabKey = 'appearance' | 'rover' | 'network' | 'status' | 'about';
+type TabKey = 'appearance' | 'rover' | 'wifi' | 'status' | 'about';
+const tabs: Array<{ key: TabKey; label: string }> = [
+  { key: 'appearance', label: 'Appearance' },
+  { key: 'rover', label: 'Rover' },
+  { key: 'wifi', label: 'WiFi' },
+  { key: 'status', label: 'Status' },
+  { key: 'about', label: 'About' },
+];
 
 function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
+  if (!isOpen) {
+    return null;
+  }
+
   const [activeTab, setActiveTab] = useState<TabKey>('appearance');
   const appearance = useAppStore((state) => state.appearance);
   const setAppearance = useAppStore((state) => state.setAppearance);
@@ -21,18 +32,16 @@ function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   const roverSettings = useAppStore((state) => state.roverSettings);
   const setRoverSettings = useAppStore((state) => state.setRoverSettings);
   const resetRoverSettings = useAppStore((state) => state.resetRoverSettings);
+  const isAuthenticatingWifi = useAppStore((state) => state.isAuthenticatingWifi);
+  const wifiAuthResult = useAppStore((state) => state.wifiAuthResult);
+  
+  const {
+    authenticateWifi
+  } = useAppWebSocket(import.meta.env.VITE_WS_URL + '?token=valid');
 
-  if (!isOpen) {
-    return null;
+  const handleConnectWiFi = (ssid: string, password: string) => {
+    authenticateWifi({ssid, password});
   }
-
-  const tabs: Array<{ key: TabKey; label: string }> = [
-    { key: 'appearance', label: 'Appearance' },
-    { key: 'rover', label: 'Rover' },
-    { key: 'network', label: 'Network' },
-    { key: 'status', label: 'Status' },
-    { key: 'about', label: 'About' },
-  ];
 
   const isDarkTheme = appearance.theme === 'dark';
   const shellClasses = isDarkTheme
@@ -120,13 +129,16 @@ function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             </div>
           )}
 
-          {activeTab === 'network' && (
+          {activeTab === 'wifi' && (
             <WiFiForm 
               panelClasses={panelClasses}
               inputClasses={inputClasses}
               secondaryTextClasses={secondaryTextClasses}
               buttonHoverClasses={buttonHoverClasses}
               isDarkTheme={isDarkTheme}
+              onConnect={handleConnectWiFi}
+              connecting={isAuthenticatingWifi}
+              connectResult={wifiAuthResult}
             />
           )}
 
