@@ -1,6 +1,6 @@
-import useWebSocket, { ReadyState } from 'react-use-websocket';
-// import { useWebSocket } from 'react-use-websocket/dist/lib/use-websocket';
-// import { ReadyState } from 'react-use-websocket/dist/lib/constants';
+// import useWebSocket, { ReadyState } from 'react-use-websocket';
+import { useWebSocket } from 'react-use-websocket/dist/lib/use-websocket';
+import { ReadyState } from 'react-use-websocket/dist/lib/constants';
 import { useAppStore } from '../store';
 import type { DrivePayload, RawClientAction, ServerEvent, WifiAuthPayload } from '../types/websocket';
 import { useRef } from 'react';

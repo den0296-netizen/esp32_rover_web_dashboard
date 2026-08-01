@@ -1,17 +1,23 @@
 import { useState } from 'react';
-import { type AppSettings } from '../types/settings';
+import { Tabs } from './Tabs';
+import { useAppStore } from '../store';
+import type { ControlType } from '../types/appearance';
 
 type SettingsModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  settings: AppSettings;
-  onSettingsChange: (settings: AppSettings) => void;
 };
 
 type TabKey = 'appearance' | 'rover' | 'network' | 'status' | 'about';
 
-function SettingsModal({ isOpen, onClose, settings, onSettingsChange }: SettingsModalProps) {
+function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   const [activeTab, setActiveTab] = useState<TabKey>('appearance');
+  const appearance = useAppStore((state) => state.appearance);
+  const setAppearance = useAppStore((state) => state.setAppearance);
+  const resetAppearance = useAppStore((state) => state.resetAppearance);
+  const roverSettings = useAppStore((state) => state.roverSettings);
+  const setRoverSettings = useAppStore((state) => state.setRoverSettings);
+  const resetRoverSettings = useAppStore((state) => state.resetRoverSettings);
 
   if (!isOpen) {
     return null;
@@ -25,7 +31,7 @@ function SettingsModal({ isOpen, onClose, settings, onSettingsChange }: Settings
     { key: 'about', label: 'About' },
   ];
 
-  const isDarkTheme = settings.theme === 'dark';
+  const isDarkTheme = appearance.theme === 'dark';
   const shellClasses = isDarkTheme
     ? 'border-slate-700/70 bg-slate-900/95 text-slate-100 shadow-[0_20px_60px_rgba(0,0,0,0.45)]'
     : 'border-slate-300/80 bg-slate-50/95 text-slate-900 shadow-[0_20px_60px_rgba(15,23,42,0.16)]';
@@ -96,11 +102,11 @@ function SettingsModal({ isOpen, onClose, settings, onSettingsChange }: Settings
                     <label className={`mb-1 block text-sm font-medium ${secondaryTextClasses}`}>Control type</label>
                     <select
                       className={`w-full rounded-lg border px-3 py-2 text-sm outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 ${inputClasses}`}
-                      value={settings.controlType}
-                      onChange={(event) => onSettingsChange({ ...settings, controlType: event.target.value as AppSettings['controlType'] })}
+                      value={appearance.controlType}
+                      onChange={(event) => setAppearance({ controlType: event.target.value as ControlType })}
                     >
                       <option value="joystick">Joystick</option>
-                      <option value="arrows">Arrows</option>
+                      <option value="arrow_pad">Arrow Pad</option>
                     </select>
                   </div>
                   <div>
@@ -111,8 +117,8 @@ function SettingsModal({ isOpen, onClose, settings, onSettingsChange }: Settings
                           type="radio"
                           name="controlPosition"
                           value="left"
-                          checked={settings.controlPosition === 'left'}
-                          onChange={() => onSettingsChange({ ...settings, controlPosition: 'left' })}
+                          checked={appearance.controlPosition === 'left'}
+                          onChange={() => setAppearance({ controlPosition: 'left' })}
                         />
                         <span>Left</span>
                       </label>
@@ -121,8 +127,8 @@ function SettingsModal({ isOpen, onClose, settings, onSettingsChange }: Settings
                           type="radio"
                           name="controlPosition"
                           value="right"
-                          checked={settings.controlPosition === 'right'}
-                          onChange={() => onSettingsChange({ ...settings, controlPosition: 'right' })}
+                          checked={appearance.controlPosition === 'right'}
+                          onChange={() => setAppearance({ controlPosition: 'right' })}
                         />
                         <span>Right</span>
                       </label>
@@ -136,8 +142,8 @@ function SettingsModal({ isOpen, onClose, settings, onSettingsChange }: Settings
                           type="radio"
                           name="flashlightPosition"
                           value="left"
-                          checked={settings.flashlightPosition === 'left'}
-                          onChange={() => onSettingsChange({ ...settings, flashlightPosition: 'left' })}
+                          checked={appearance.flashlightPosition === 'left'}
+                          onChange={() => setAppearance({ flashlightPosition: 'left' })}
                         />
                         <span>Left</span>
                       </label>
@@ -146,8 +152,8 @@ function SettingsModal({ isOpen, onClose, settings, onSettingsChange }: Settings
                           type="radio"
                           name="flashlightPosition"
                           value="right"
-                          checked={settings.flashlightPosition === 'right'}
-                          onChange={() => onSettingsChange({ ...settings, flashlightPosition: 'right' })}
+                          checked={appearance.flashlightPosition === 'right'}
+                          onChange={() => setAppearance({ flashlightPosition: 'right' })}
                         />
                         <span>Right</span>
                       </label>
@@ -161,8 +167,8 @@ function SettingsModal({ isOpen, onClose, settings, onSettingsChange }: Settings
                           type="radio"
                           name="theme"
                           value="dark"
-                          checked={settings.theme === 'dark'}
-                          onChange={() => onSettingsChange({ ...settings, theme: 'dark' })}
+                          checked={appearance.theme === 'dark'}
+                          onChange={() => setAppearance({ theme: 'dark' })}
                         />
                         <span>Dark</span>
                       </label>
@@ -171,8 +177,8 @@ function SettingsModal({ isOpen, onClose, settings, onSettingsChange }: Settings
                           type="radio"
                           name="theme"
                           value="light"
-                          checked={settings.theme === 'light'}
-                          onChange={() => onSettingsChange({ ...settings, theme: 'light' })}
+                          checked={appearance.theme === 'light'}
+                          onChange={() => setAppearance({ theme: 'light' })}
                         />
                         <span>Light</span>
                       </label>
@@ -191,8 +197,8 @@ function SettingsModal({ isOpen, onClose, settings, onSettingsChange }: Settings
                     <input
                       type="checkbox"
                       className="h-4 w-4 rounded border-slate-600 bg-slate-900 text-sky-500 focus:ring-sky-500"
-                      checked={settings.showBatteryStatus}
-                      onChange={() => onSettingsChange({ ...settings, showBatteryStatus: !settings.showBatteryStatus })}
+                      checked={appearance.showBatteryStatus}
+                      onChange={() => setAppearance({ showBatteryStatus: !appearance.showBatteryStatus })}
                     />
                   </label>
                   <label className={`flex items-center justify-between rounded-lg border px-3 py-2 text-sm ${panelClasses}`}>
@@ -200,8 +206,8 @@ function SettingsModal({ isOpen, onClose, settings, onSettingsChange }: Settings
                     <input
                       type="checkbox"
                       className="h-4 w-4 rounded border-slate-600 bg-slate-900 text-sky-500 focus:ring-sky-500"
-                      checked={settings.showSignalQuality}
-                      onChange={() => onSettingsChange({ ...settings, showSignalQuality: !settings.showSignalQuality })}
+                      checked={appearance.showSignalQuality}
+                      onChange={() => setAppearance({ showSignalQuality: !appearance.showSignalQuality })}
                     />
                   </label>
                   <label className={`flex items-center justify-between rounded-lg border px-3 py-2 text-sm ${panelClasses}`}>
@@ -209,33 +215,53 @@ function SettingsModal({ isOpen, onClose, settings, onSettingsChange }: Settings
                     <input
                       type="checkbox"
                       className="h-4 w-4 rounded border-slate-600 bg-slate-900 text-sky-500 focus:ring-sky-500"
-                      checked={settings.showVideoStream}
-                      onChange={() => onSettingsChange({ ...settings, showVideoStream: !settings.showVideoStream })}
+                      checked={appearance.showVideoStream}
+                      onChange={() => setAppearance({ showVideoStream: !appearance.showVideoStream })}
                     />
                   </label>
                 </div>
+              </div>
+              <div>
+                <button
+                  type="button"
+                  className={`rounded-full px-4 py-2 text-sm font-medium transition ${buttonHoverClasses} bg-sky-500 ${isDarkTheme ? 'text-slate-300' : 'text-slate-700'}`}
+                  onClick={resetAppearance}
+                >
+                  Reset to defaults
+                </button>
               </div>
             </>
           )}
 
           {activeTab === 'rover' && (
-            <div className={`rounded-xl border p-4 ${panelClasses}`}>
-              <label htmlFor="SpeedLimit" className={`mb-1 block text-sm font-medium ${secondaryTextClasses}`}>
-                Speed limit
-              </label>
-              <input
-                type="number"
-                name="SpeedLimit"
-                id="SpeedLimit"
-                min={0}
-                max={100}
-                value={settings.speedLimit}
-                onChange={(event) => {
-                  const nextValue = Number(event.target.value);
-                  onSettingsChange({ ...settings, speedLimit: Number.isFinite(nextValue) ? nextValue : 0 });
-                }}
-                className={`w-full rounded-lg border px-3 py-2 text-sm outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 ${inputClasses}`}
-              />
+            <div>
+              <div className={`rounded-xl border p-4 ${panelClasses}`}>
+                <label htmlFor="SpeedLimit" className={`mb-1 block text-sm font-medium ${secondaryTextClasses}`}>
+                  Speed limit
+                </label>
+                <input
+                  type="number"
+                  name="SpeedLimit"
+                  id="SpeedLimit"
+                  min={0}
+                  max={100}
+                  value={roverSettings.speedLimit}
+                  onChange={(event) => {
+                    const nextValue = Number(event.target.value);
+                    setRoverSettings({ speedLimit: Number.isFinite(nextValue) ? nextValue : 0 });
+                  }}
+                  className={`w-full rounded-lg border px-3 py-2 text-sm outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 ${inputClasses}`}
+                />
+              </div>
+              <div>
+                <button
+                  type="button"
+                  className={`rounded-full px-4 py-2 text-sm font-medium transition ${buttonHoverClasses} bg-sky-500 ${isDarkTheme ? 'text-slate-300' : 'text-slate-700'}`}
+                  onClick={resetRoverSettings}
+                >
+                  Reset to defaults
+                </button>
+              </div>
             </div>
           )}
 
