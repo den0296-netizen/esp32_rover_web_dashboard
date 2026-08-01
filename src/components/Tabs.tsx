@@ -28,6 +28,7 @@ export interface TabProps {
   value: string;
   children: React.ReactNode;
   disabled?: boolean;
+  tabInactiveClasses?: string;
   className?: string;
 }
 
@@ -53,7 +54,7 @@ export const Tabs = ({
   return (
     <TabsContext.Provider value={{ activeTab, setActiveTab }}>
       <div
-        className={`inline-flex items-center gap-1 rounded-lg bg-gray-100 p-1 border border-gray-200 shadow-inner ${className}`}
+        className={`flex shrink-0 flex-wrap gap-2 border-b px-4 py-3 ${className}`}
         role="tablist"
       >
         {children}
@@ -62,7 +63,7 @@ export const Tabs = ({
   );
 };
 
-const Tab = ({ value, children, disabled = false, className = '' }: TabProps) => {
+const Tab = ({ value, children, disabled = false, tabInactiveClasses = '', className = '' }: TabProps) => {
   const { activeTab, setActiveTab } = useTabsContext();
   const isActive = activeTab === value;
 
@@ -74,11 +75,11 @@ const Tab = ({ value, children, disabled = false, className = '' }: TabProps) =>
       disabled={disabled}
       onClick={() => setActiveTab(value)}
       className={`
-        relative px-4 py-1.5 text-sm font-medium transition-all duration-200 rounded-md select-none outline-none focus-visible:ring-2 focus-visible:ring-blue-500
+        rounded-full px-3 py-2 text-sm font-medium transition
         ${
           isActive
-            ? 'bg-white text-gray-900 shadow-sm font-semibold'
-            : 'text-gray-600 hover:text-gray-900 hover:bg-gray-200/60'
+            ? 'bg-sky-500 text-slate-950'
+            : tabInactiveClasses
         }
         ${disabled ? 'opacity-50 cursor-not-allowed hover:bg-transparent hover:text-gray-600' : 'cursor-pointer'}
         ${className}

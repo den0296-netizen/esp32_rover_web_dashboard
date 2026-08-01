@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { Tabs } from './Tabs';
 import { useAppStore } from '../store';
 import type { ControlType } from '../types/appearance';
+import AppearanceForm from './AppearanceForm';
+import RoverSettingsForm from './RoverSettingsForm';
+import WiFiForm from './WiFiForm';
 
 type SettingsModalProps = {
   isOpen: boolean;
@@ -72,232 +75,59 @@ function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             ✕
           </button>
         </div>
-
-        <div className={`flex shrink-0 flex-wrap gap-2 border-b px-4 py-3 ${isDarkTheme ? 'border-slate-800' : 'border-slate-200'}`}>
+        <Tabs defaultValue={tabs[0].key}
+          value={activeTab}
+          onValueChange={(value) => setActiveTab(value as TabKey)}
+          className={isDarkTheme ? 'border-slate-800' : 'border-slate-200'}>
           {tabs.map((tab) => (
-            <button
+            <Tabs.Tab
               key={tab.key}
-              type="button"
-              onClick={() => setActiveTab(tab.key)}
-              className={`rounded-full px-3 py-2 text-sm font-medium transition ${
-                activeTab === tab.key
-                  ? 'bg-sky-500 text-slate-950'
-                  : tabInactiveClasses
-              }`}
+              value={tab.key}
+              tabInactiveClasses={tabInactiveClasses}
             >
               {tab.label}
-            </button>
+            </Tabs.Tab>
           ))}
-        </div>
+        </Tabs>
 
         <div className={`flex-1 space-y-4 overflow-y-auto px-6 py-5 ${isDarkTheme ? 'text-slate-200' : 'text-slate-700'}`}>
           {activeTab === 'appearance' && (
-            <>
-              <div className={`rounded-xl border p-4 ${panelClasses}`}>
-                <h3 className={`mb-3 text-sm font-semibold uppercase tracking-[0.24em] ${mutedTextClasses}`}>
-                  Controls
-                </h3>
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div>
-                    <label className={`mb-1 block text-sm font-medium ${secondaryTextClasses}`}>Control type</label>
-                    <select
-                      className={`w-full rounded-lg border px-3 py-2 text-sm outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 ${inputClasses}`}
-                      value={appearance.controlType}
-                      onChange={(event) => setAppearance({ controlType: event.target.value as ControlType })}
-                    >
-                      <option value="joystick">Joystick</option>
-                      <option value="arrow_pad">Arrow Pad</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className={`mb-1 block text-sm font-medium ${secondaryTextClasses}`}>Control position</label>
-                    <div className="flex gap-3">
-                      <label className={`flex flex-1 cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm ${panelClasses}`}>
-                        <input
-                          type="radio"
-                          name="controlPosition"
-                          value="left"
-                          checked={appearance.controlPosition === 'left'}
-                          onChange={() => setAppearance({ controlPosition: 'left' })}
-                        />
-                        <span>Left</span>
-                      </label>
-                      <label className={`flex flex-1 cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm ${panelClasses}`}>
-                        <input
-                          type="radio"
-                          name="controlPosition"
-                          value="right"
-                          checked={appearance.controlPosition === 'right'}
-                          onChange={() => setAppearance({ controlPosition: 'right' })}
-                        />
-                        <span>Right</span>
-                      </label>
-                    </div>
-                  </div>
-                  <div>
-                    <label className={`mb-1 block text-sm font-medium ${secondaryTextClasses}`}>Flashlight position</label>
-                    <div className="flex gap-3">
-                      <label className={`flex flex-1 cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm ${panelClasses}`}>
-                        <input
-                          type="radio"
-                          name="flashlightPosition"
-                          value="left"
-                          checked={appearance.flashlightPosition === 'left'}
-                          onChange={() => setAppearance({ flashlightPosition: 'left' })}
-                        />
-                        <span>Left</span>
-                      </label>
-                      <label className={`flex flex-1 cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm ${panelClasses}`}>
-                        <input
-                          type="radio"
-                          name="flashlightPosition"
-                          value="right"
-                          checked={appearance.flashlightPosition === 'right'}
-                          onChange={() => setAppearance({ flashlightPosition: 'right' })}
-                        />
-                        <span>Right</span>
-                      </label>
-                    </div>
-                  </div>
-                  <div>
-                    <label className={`mb-1 block text-sm font-medium ${secondaryTextClasses}`}>Theme</label>
-                    <div className="flex gap-3">
-                      <label className={`flex flex-1 cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm ${panelClasses}`}>
-                        <input
-                          type="radio"
-                          name="theme"
-                          value="dark"
-                          checked={appearance.theme === 'dark'}
-                          onChange={() => setAppearance({ theme: 'dark' })}
-                        />
-                        <span>Dark</span>
-                      </label>
-                      <label className={`flex flex-1 cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm ${panelClasses}`}>
-                        <input
-                          type="radio"
-                          name="theme"
-                          value="light"
-                          checked={appearance.theme === 'light'}
-                          onChange={() => setAppearance({ theme: 'light' })}
-                        />
-                        <span>Light</span>
-                      </label>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className={`rounded-xl border p-4 ${panelClasses}`}>
-                <h3 className={`mb-3 text-sm font-semibold uppercase tracking-[0.24em] ${mutedTextClasses}`}>
-                  Visibility
-                </h3>
-                <div className="space-y-3">
-                  <label className={`flex items-center justify-between rounded-lg border px-3 py-2 text-sm ${panelClasses}`}>
-                    <span>Show battery status</span>
-                    <input
-                      type="checkbox"
-                      className="h-4 w-4 rounded border-slate-600 bg-slate-900 text-sky-500 focus:ring-sky-500"
-                      checked={appearance.showBatteryStatus}
-                      onChange={() => setAppearance({ showBatteryStatus: !appearance.showBatteryStatus })}
-                    />
-                  </label>
-                  <label className={`flex items-center justify-between rounded-lg border px-3 py-2 text-sm ${panelClasses}`}>
-                    <span>Show signal quality</span>
-                    <input
-                      type="checkbox"
-                      className="h-4 w-4 rounded border-slate-600 bg-slate-900 text-sky-500 focus:ring-sky-500"
-                      checked={appearance.showSignalQuality}
-                      onChange={() => setAppearance({ showSignalQuality: !appearance.showSignalQuality })}
-                    />
-                  </label>
-                  <label className={`flex items-center justify-between rounded-lg border px-3 py-2 text-sm ${panelClasses}`}>
-                    <span>Show video stream</span>
-                    <input
-                      type="checkbox"
-                      className="h-4 w-4 rounded border-slate-600 bg-slate-900 text-sky-500 focus:ring-sky-500"
-                      checked={appearance.showVideoStream}
-                      onChange={() => setAppearance({ showVideoStream: !appearance.showVideoStream })}
-                    />
-                  </label>
-                </div>
-              </div>
-              <div>
-                <button
-                  type="button"
-                  className={`rounded-full px-4 py-2 text-sm font-medium transition ${buttonHoverClasses} bg-sky-500 ${isDarkTheme ? 'text-slate-300' : 'text-slate-700'}`}
-                  onClick={resetAppearance}
-                >
-                  Reset to defaults
-                </button>
-              </div>
-            </>
+            <AppearanceForm
+              panelClasses={panelClasses}
+              inputClasses={inputClasses}
+              mutedTextClasses={mutedTextClasses}
+              secondaryTextClasses={secondaryTextClasses}
+              buttonHoverClasses={buttonHoverClasses}
+              isDarkTheme={isDarkTheme}
+              appearance={appearance}
+              setAppearance={setAppearance}
+              resetAppearance={resetAppearance}
+            />
           )}
 
           {activeTab === 'rover' && (
             <div>
-              <div className={`rounded-xl border p-4 ${panelClasses}`}>
-                <label htmlFor="SpeedLimit" className={`mb-1 block text-sm font-medium ${secondaryTextClasses}`}>
-                  Speed limit
-                </label>
-                <input
-                  type="number"
-                  name="SpeedLimit"
-                  id="SpeedLimit"
-                  min={0}
-                  max={100}
-                  value={roverSettings.speedLimit}
-                  onChange={(event) => {
-                    const nextValue = Number(event.target.value);
-                    setRoverSettings({ speedLimit: Number.isFinite(nextValue) ? nextValue : 0 });
-                  }}
-                  className={`w-full rounded-lg border px-3 py-2 text-sm outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 ${inputClasses}`}
-                />
-              </div>
-              <div>
-                <button
-                  type="button"
-                  className={`rounded-full px-4 py-2 text-sm font-medium transition ${buttonHoverClasses} bg-sky-500 ${isDarkTheme ? 'text-slate-300' : 'text-slate-700'}`}
-                  onClick={resetRoverSettings}
-                >
-                  Reset to defaults
-                </button>
-              </div>
+              <RoverSettingsForm
+                panelClasses={panelClasses}
+                inputClasses={inputClasses}
+                secondaryTextClasses={secondaryTextClasses}
+                buttonHoverClasses={buttonHoverClasses}
+                isDarkTheme={isDarkTheme}
+                roverSettings={roverSettings}
+                setRoverSettings={setRoverSettings}
+                resetRoverSettings={resetRoverSettings}
+              />
             </div>
           )}
 
           {activeTab === 'network' && (
-            <div className={`rounded-xl border p-4 ${panelClasses}`}>
-              <div className="space-y-4">
-                <div>
-                  <label htmlFor="WiFiName" className={`mb-1 block text-sm font-medium ${secondaryTextClasses}`}>
-                    Wi-Fi Name (SSID)
-                  </label>
-                  <input
-                    type="text"
-                    id="WiFiName"
-                    className={`w-full rounded-lg border px-3 py-2 text-sm outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 ${inputClasses}`}
-                  />
-                </div>
-                <div>
-                  <label htmlFor="WiFiPassword" className={`mb-1 block text-sm font-medium ${secondaryTextClasses}`}>
-                    Wi-Fi Password
-                  </label>
-                  <input
-                    type="password"
-                    id="WiFiPassword"
-                    className={`w-full rounded-lg border px-3 py-2 text-sm outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 ${inputClasses}`}
-                  />
-                </div>
-                <div>
-                    <button
-                        type="button"
-                        className="rounded-full bg-sky-500 px-4 py-2 text-sm font-semibold text-slate-950 shadow-lg shadow-sky-500/20 transition hover:bg-sky-400"
-                    >
-                        Connect
-                    </button>
-                </div>
-              </div>
-            </div>
+            <WiFiForm 
+              panelClasses={panelClasses}
+              inputClasses={inputClasses}
+              secondaryTextClasses={secondaryTextClasses}
+              buttonHoverClasses={buttonHoverClasses}
+              isDarkTheme={isDarkTheme}
+            />
           )}
 
           {activeTab === 'status' && (
