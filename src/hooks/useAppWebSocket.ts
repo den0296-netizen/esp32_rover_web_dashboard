@@ -47,7 +47,7 @@ export function useAppWebSocket(socketUrl: string) {
             handleBatteryStatusUpdate(data.payload);
             break;
 
-          case 'wifi_signal':
+          case 'wifi_rssi':
             handleWifiSignalUpdate(data.payload);
             break;
 

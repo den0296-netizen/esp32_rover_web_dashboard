@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { WifiAuthResult } from "../types/websocket";
 
 interface WiFiFormProps {
@@ -16,9 +17,13 @@ function WiFiForm({
     inputClasses,
     secondaryTextClasses,
     buttonHoverClasses,
-    isDarkTheme
+    isDarkTheme,
+    onConnect,
+    connecting,
+    connectResult
 }: WiFiFormProps) {
-
+    const [ssid, setSsid] = useState('');
+    const [password, setPassword] = useState('');
     const handleConnect = () => {
       onConnect(ssid, password);
     }
@@ -35,6 +40,9 @@ function WiFiForm({
                     type="text"
                     id="WiFiName"
                     className={`w-full rounded-lg border px-3 py-2 text-sm outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 ${inputClasses}`}
+                    value={ssid}
+                    disabled={connecting}
+                    onChange={(e) => setSsid(e.target.value)}
                   />
                 </div>
                 <div>
@@ -45,16 +53,26 @@ function WiFiForm({
                     type="password"
                     id="WiFiPassword"
                     className={`w-full rounded-lg border px-3 py-2 text-sm outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 ${inputClasses}`}
+                    value={password}
+                    disabled={connecting}
+                    onChange={(e) => setPassword(e.target.value)}
                   />
                 </div>
                 <div>
                     <button
                         type="button"
-                        className="rounded-full bg-sky-500 px-4 py-2 text-sm font-semibold text-slate-950 shadow-lg shadow-sky-500/20 transition hover:bg-sky-400"
+                        className={`rounded-full bg-sky-500 px-4 py-2 text-sm font-semibold text-slate-950 shadow-lg shadow-sky-500/20 transition hover:bg-sky-400 ${buttonHoverClasses} ${isDarkTheme ? 'text-slate-300' : 'text-slate-700'}`}
+                        disabled={connecting}
                         onClick={handleConnect}
                     >
                         Connect
                     </button>
+                    {connecting && <p className="mt-2 text-sm text-sky-500">Connecting...</p>}
+                    {connectResult && (
+                        <p className={`mt-2 text-sm ${connectResult.success ? 'text-green-500' : 'text-red-500'}`}>
+                            {connectResult.message}
+                        </p>
+                    )}
                 </div>
               </div>
             </div>

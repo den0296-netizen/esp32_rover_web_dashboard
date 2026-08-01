@@ -75,7 +75,7 @@ export type ServerEvent = WsMessageHeader &
     | { event: 'flashlight_toggle'; payload: FlashlightResult }
     | { event: 'arm_toggle'; payload: ArmResult }
     | { event: 'battery_status'; payload: BatteryStatusPayload }
-    | { event: 'wifi_signal'; payload: WifiSignalPayload }
+    | { event: 'wifi_rssi'; payload: WifiSignalPayload }
     | { event: 'network_status'; payload: NetworkStatusPayload }
     | { event: 'network_info'; payload: NetworkInfoPayload }
     | { event: 'telemetry'; payload: TelemetryData }
