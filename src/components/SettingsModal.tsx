@@ -4,11 +4,11 @@ import { useAppStore } from '../store';
 import AppearanceForm from './AppearanceForm';
 import RoverSettingsForm from './RoverSettingsForm';
 import WiFiForm from './WiFiForm';
-import { useAppWebSocket } from '../hooks/useAppWebSocket';
 
 type SettingsModalProps = {
   isOpen: boolean;
   onClose: () => void;
+  onConnectWifi?: (ssid: string, password: string) => void;
 };
 
 type TabKey = 'appearance' | 'rover' | 'wifi' | 'status' | 'about';
@@ -20,7 +20,7 @@ const tabs: Array<{ key: TabKey; label: string }> = [
   { key: 'about', label: 'About' },
 ];
 
-function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
+function SettingsModal({ isOpen, onClose, onConnectWifi }: SettingsModalProps) {
   if (!isOpen) {
     return null;
   }
@@ -35,13 +35,9 @@ function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   const isAuthenticatingWifi = useAppStore((state) => state.isAuthenticatingWifi);
   const wifiAuthResult = useAppStore((state) => state.wifiAuthResult);
   
-  const {
-    authenticateWifi
-  } = useAppWebSocket(import.meta.env.VITE_WS_URL + '?token=valid');
-
   const handleConnectWiFi = (ssid: string, password: string) => {
-    authenticateWifi({ssid, password});
-  }
+    onConnectWifi?.(ssid, password);
+  };
 
   const isDarkTheme = appearance.theme === 'dark';
   const shellClasses = isDarkTheme

@@ -13,13 +13,48 @@ import { applySpeedLimit, deadzone } from './utils';
 import { useAppWebSocket } from './hooks/useAppWebSocket';
 import { useAppStore } from './store';
 
-const videoStream = import.meta.env.VITE_STREAM_URL;
+const videoStream = (() => {
+  if (!import.meta.env.VITE_STREAM_URL) {
+    return location.origin + ':81/stream';
+  }
+  return import.meta.env.VITE_STREAM_URL;
+})();
+
+const normalizeWebSocketUrl = (value?: string) => {
+  if (!value) {
+    return location.origin.replace(/^http/, 'ws') + '/ws';
+  }
+
+  const rawValue = value.trim();
+
+  if (/^wss?:\/\//i.test(rawValue)) {
+    return rawValue;
+  }
+
+  if (/^https?:\/\//i.test(rawValue)) {
+    return rawValue.replace(/^http/i, 'ws');
+  }
+
+  if (rawValue.startsWith('/')) {
+    return `${location.origin.replace(/^http/, 'ws')}${rawValue}`;
+  }
+
+  if (rawValue.startsWith('//')) {
+    return `${location.protocol === 'https:' ? 'wss:' : 'ws:'}${rawValue}`;
+  }
+
+  return `${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${rawValue}`;
+};
+
+const wsUrl = normalizeWebSocketUrl(import.meta.env.VITE_WS_URL);
+
 function App() {
   const {
     toggleFlashlight,
     toggleArm,
-    drive
-  } = useAppWebSocket(import.meta.env.VITE_WS_URL + '?token=valid');
+    drive,
+    authenticateWifi
+  } = useAppWebSocket(wsUrl + '?token=valid');
 
   // Selectors from state slices
   const appearance = useAppStore((state) => state.appearance);
@@ -50,6 +85,10 @@ function App() {
       steering: 0
     });
   };
+
+  const handleConnectWiFi = useCallback((ssid: string, password: string) => {
+    authenticateWifi({ ssid, password });
+  }, [authenticateWifi]);
 
   const renderControlPad = () => {
     if (appearance.controlType === 'arrow_pad') {
@@ -87,6 +126,7 @@ function App() {
       <SettingsModal
         isOpen={settingsOpen}
         onClose={() => setSettingsOpen(false)}
+        onConnectWifi={handleConnectWiFi}
       />
     </div>
   );
