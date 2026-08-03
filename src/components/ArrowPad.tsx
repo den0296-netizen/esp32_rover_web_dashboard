@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 type ArrowPadProps = {
   onMove?: (steering: number, throttle: number) => void;
@@ -18,36 +18,91 @@ function ArrowPad({ onMove, onRelease, position = 'right', theme = 'dark' }: Arr
     ? 'border-slate-300 bg-white text-slate-900 hover:bg-slate-200'
     : 'border-slate-600 bg-slate-800 text-slate-100 hover:bg-slate-700';
 
-  const sendDirection = (steering: number, throttle: number) => {
-    onMove?.(steering, throttle);
+  const emitTimerRef = useRef<number | null>(null);
+  const latestDirectionRef = useRef({ steering: 0, throttle: 0 });
+  const activeKeysRef = useRef(new Set<string>());
+
+  const clearEmitTimer = () => {
+    if (emitTimerRef.current !== null) {
+      window.clearInterval(emitTimerRef.current);
+      emitTimerRef.current = null;
+    }
+  };
+
+  const emitLatestDirection = () => {
+    onMove?.(latestDirectionRef.current.steering, latestDirectionRef.current.throttle);
+  };
+
+  const startEmission = (steering: number, throttle: number) => {
+    latestDirectionRef.current = { steering, throttle };
+    emitLatestDirection();
+
+    if (emitTimerRef.current === null) {
+      emitTimerRef.current = window.setInterval(emitLatestDirection, 50);
+    }
+  };
+
+  const stopEmission = () => {
+    clearEmitTimer();
+    latestDirectionRef.current = { steering: 0, throttle: 0 };
+    onRelease?.();
   };
 
   useEffect(() => {
+    const updateKeyboardDirection = () => {
+      const activeKeys = activeKeysRef.current;
+      let steering = 0;
+      let throttle = 0;
+
+      if (activeKeys.has(KEYBOARD_ARROWS[2])) {
+        steering = -100;
+      } else if (activeKeys.has(KEYBOARD_ARROWS[3])) {
+        steering = 100;
+      }
+
+      if (activeKeys.has(KEYBOARD_ARROWS[0])) {
+        throttle = 100;
+      } else if (activeKeys.has(KEYBOARD_ARROWS[1])) {
+        throttle = -100;
+      }
+
+      if (activeKeys.size === 0) {
+        stopEmission();
+        return;
+      }
+
+      startEmission(steering, throttle);
+    };
+
     const keydownHandler = (e: KeyboardEvent) => {
-      switch(e.key) {
-        case KEYBOARD_ARROWS[0]:
-          sendDirection(0, 100)
-          break;
-        case KEYBOARD_ARROWS[1]:
-          sendDirection(0, -100)
-          break;
-        case KEYBOARD_ARROWS[2]:
-          sendDirection(-100, 0)
-          break;
-        case KEYBOARD_ARROWS[3]:
-          sendDirection(100, 0)
-          break;
+      if (!KEYBOARD_ARROWS.includes(e.key)) {
+        return;
+      }
+
+      e.preventDefault();
+
+      if (!activeKeysRef.current.has(e.key)) {
+        activeKeysRef.current.add(e.key);
+        updateKeyboardDirection();
       }
     };
+
     const keyupHandler = (e: KeyboardEvent) => {
-      if (KEYBOARD_ARROWS.includes(e.key)) {
-        sendDirection(0, 0);
+      if (!KEYBOARD_ARROWS.includes(e.key)) {
+        return;
       }
+
+      e.preventDefault();
+      activeKeysRef.current.delete(e.key);
+      updateKeyboardDirection();
     };
+
     document.addEventListener('keydown', keydownHandler);
     document.addEventListener('keyup', keyupHandler);
 
     return () => {
+      clearEmitTimer();
+      activeKeysRef.current.clear();
       document.removeEventListener('keydown', keydownHandler);
       document.removeEventListener('keyup', keyupHandler);
     };
@@ -60,9 +115,10 @@ function ArrowPad({ onMove, onRelease, position = 'right', theme = 'dark' }: Arr
         <button
           type="button"
           className={`flex h-12 w-12 items-center justify-center rounded-xl border transition active:scale-95 ${buttonClasses}`}
-          onPointerDown={() => sendDirection(0, 100)}
-          onPointerUp={onRelease}
-          onPointerLeave={onRelease}
+          onPointerDown={() => startEmission(0, 100)}
+          onPointerUp={stopEmission}
+          onPointerLeave={stopEmission}
+          onPointerCancel={stopEmission}
           aria-label="Move forward"
         >
           ↑
@@ -73,9 +129,10 @@ function ArrowPad({ onMove, onRelease, position = 'right', theme = 'dark' }: Arr
         <button
           type="button"
           className={`flex h-12 w-12 items-center justify-center rounded-xl border transition active:scale-95 ${buttonClasses}`}
-          onPointerDown={() => sendDirection(-100, 0)}
-          onPointerUp={onRelease}
-          onPointerLeave={onRelease}
+          onPointerDown={() => startEmission(-100, 0)}
+          onPointerUp={stopEmission}
+          onPointerLeave={stopEmission}
+          onPointerCancel={stopEmission}
           aria-label="Move left"
         >
           ←
@@ -83,9 +140,10 @@ function ArrowPad({ onMove, onRelease, position = 'right', theme = 'dark' }: Arr
         <button
           type="button"
           className={`flex h-12 w-12 items-center justify-center rounded-xl border transition active:scale-95 ${buttonClasses}`}
-          onPointerDown={() => sendDirection(0, -100)}
-          onPointerUp={onRelease}
-          onPointerLeave={onRelease}
+          onPointerDown={() => startEmission(0, -100)}
+          onPointerUp={stopEmission}
+          onPointerLeave={stopEmission}
+          onPointerCancel={stopEmission}
           aria-label="Move backward"
         >
           ↓
@@ -93,9 +151,10 @@ function ArrowPad({ onMove, onRelease, position = 'right', theme = 'dark' }: Arr
         <button
           type="button"
           className={`flex h-12 w-12 items-center justify-center rounded-xl border transition active:scale-95 ${buttonClasses}`}
-          onPointerDown={() => sendDirection(100, 0)}
-          onPointerUp={onRelease}
-          onPointerLeave={onRelease}
+          onPointerDown={() => startEmission(100, 0)}
+          onPointerUp={stopEmission}
+          onPointerLeave={stopEmission}
+          onPointerCancel={stopEmission}
           aria-label="Move right"
         >
           →
