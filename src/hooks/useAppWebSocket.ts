@@ -31,7 +31,7 @@ export function useAppWebSocket(socketUrl: string) {
         console.debug(`[WS Received] seq: ${data.seq}, version: ${data.version}`);
 
         switch (data.event) {
-          case 'wifi_authentication':
+          case 'wifi_authenticate':
             handleWifiAuthResponse(data.payload);
             break;
 

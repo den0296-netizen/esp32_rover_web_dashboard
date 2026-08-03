@@ -71,7 +71,7 @@ export type ClientAction = WsMessageHeader & RawClientAction;
 // Inbound events
 export type ServerEvent = WsMessageHeader &
   (
-    | { event: 'wifi_authentication'; payload: WifiAuthResult }
+    | { event: 'wifi_authenticate'; payload: WifiAuthResult }
     | { event: 'flashlight_toggle'; payload: FlashlightResult }
     | { event: 'arm_toggle'; payload: ArmResult }
     | { event: 'battery_status'; payload: BatteryStatusPayload }
