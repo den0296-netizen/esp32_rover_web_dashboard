@@ -8,6 +8,8 @@ interface WiFiFormProps {
     buttonHoverClasses: string;
     isDarkTheme: boolean;
     onConnect: (ssid: string, password: string) => void;
+    ssid: string;
+    connected: boolean;
     connecting: boolean;
     connectResult: WifiAuthResult | null;
 }
@@ -19,19 +21,26 @@ function WiFiForm({
     buttonHoverClasses,
     isDarkTheme,
     onConnect,
+    ssid,
+    connected,
     connecting,
     connectResult
 }: WiFiFormProps) {
-    const [ssid, setSsid] = useState('');
+    const [ssidValue, setSsidValue] = useState(ssid);
     const [password, setPassword] = useState('');
     const handleConnect = () => {
-      onConnect(ssid, password);
+      onConnect(ssidValue, password);
     }
 
     return (
         <>
          <div className={`rounded-xl border p-4 ${panelClasses}`}>
               <div className="space-y-4">
+                {(connected && ssid) && (
+                  <div className={`text-sm font-medium ${isDarkTheme ? 'text-green-500' : 'text-green-700'}`}>
+                    Connected to Wi-Fi network: <span className="font-semibold">{ssid}</span>
+                  </div>
+                )}
                 <div>
                   <label htmlFor="WiFiName" className={`mb-1 block text-sm font-medium ${secondaryTextClasses}`}>
                     Wi-Fi Name (SSID)
@@ -40,9 +49,9 @@ function WiFiForm({
                     type="text"
                     id="WiFiName"
                     className={`w-full rounded-lg border px-3 py-2 text-sm outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 ${inputClasses}`}
-                    value={ssid}
+                    value={ssidValue}
                     disabled={connecting}
-                    onChange={(e) => setSsid(e.target.value)}
+                    onChange={(e) => setSsidValue(e.target.value)}
                   />
                 </div>
                 <div>

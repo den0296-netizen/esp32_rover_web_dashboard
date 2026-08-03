@@ -3,7 +3,7 @@ import type { RootState } from '../index';
 import type { NetworkStatusPayload } from '../../types/websocket';
 
 export interface NetworkStatusSlice {
-  networkStatus: NetworkStatusPayload | null;
+  networkStatus: NetworkStatusPayload;
   handleNetworkStatusUpdate: (payload: NetworkStatusPayload) => void;
 }
 

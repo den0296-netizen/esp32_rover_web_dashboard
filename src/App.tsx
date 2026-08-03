@@ -63,6 +63,7 @@ function App() {
   const isArmed = useAppStore((state) => state.isArmed);
   const batteryStatus = useAppStore((state) => state.batteryStatus);
   const wifiSignal = useAppStore((state) => state.wifiSignal);
+  const networkStatus = useAppStore((state) => state.networkStatus);
 
   const [settingsOpen, setSettingsOpen] = useState(false);
 
@@ -103,8 +104,8 @@ function App() {
       <div className="osd relative flex h-full w-full flex-1 flex-col items-center justify-center">
         {appearance.showVideoStream ? <VideoFeed src={videoStream} />: <h2>Video stream is disabled</h2>}
 
-        {appearance.showBatteryStatus && <BatteryStatus voltage={batteryStatus.voltage} current={batteryStatus.current} remaining={batteryStatus.charge} />}
-        {appearance.showSignalQuality && <WiFiStatus rssi={wifiSignal.rssi} />}
+        {appearance.showBatteryStatus && <BatteryStatus voltage={batteryStatus.voltage} current={batteryStatus.current} charge={batteryStatus.charge} />}
+        {appearance.showSignalQuality && <WiFiStatus isConnected={networkStatus.wifi_connected} internetAvailable={networkStatus.internet_available} rssi={wifiSignal.rssi} />}
 
         {renderControlPad()}
 

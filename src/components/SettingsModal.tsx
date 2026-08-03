@@ -1,4 +1,11 @@
 import { useState } from 'react';
+import {
+  PaintBrushIcon,
+  WrenchScrewdriverIcon,
+  WifiIcon,
+  SignalIcon,
+  InformationCircleIcon
+} from '@heroicons/react/24/solid';
 import { Tabs } from './Tabs';
 import { useAppStore } from '../store';
 import AppearanceForm from './AppearanceForm';
@@ -16,9 +23,25 @@ const tabs: Array<{ key: TabKey; label: string }> = [
   { key: 'appearance', label: 'Appearance' },
   { key: 'rover', label: 'Rover' },
   { key: 'wifi', label: 'WiFi' },
-  { key: 'status', label: 'Status' },
+  { key: 'status', label: 'Network Status' },
   { key: 'about', label: 'About' },
 ];
+
+
+function TabIcon({ tabKey }: { tabKey: TabKey }) {
+  switch (tabKey) {
+    case 'appearance':
+      return <PaintBrushIcon className="w-5 h-5" />;
+    case 'rover':
+      return <WrenchScrewdriverIcon className="w-5 h-5" />;
+    case 'wifi':
+      return <WifiIcon className="w-5 h-5" />;
+    case 'status':
+      return <SignalIcon className="w-5 h-5" />;
+    case 'about':
+      return <InformationCircleIcon className="w-5 h-5" />;
+  }
+}
 
 function SettingsModal({ isOpen, onClose, onConnectWifi }: SettingsModalProps) {
   if (!isOpen) {
@@ -34,6 +57,8 @@ function SettingsModal({ isOpen, onClose, onConnectWifi }: SettingsModalProps) {
   const resetRoverSettings = useAppStore((state) => state.resetRoverSettings);
   const isAuthenticatingWifi = useAppStore((state) => state.isAuthenticatingWifi);
   const wifiAuthResult = useAppStore((state) => state.wifiAuthResult);
+  const networkStatus = useAppStore((state) => state.networkStatus);
+  const networkInfo = useAppStore((state) => state.networkInfo);
   
   const handleConnectWiFi = (ssid: string, password: string) => {
     onConnectWifi?.(ssid, password);
@@ -90,7 +115,10 @@ function SettingsModal({ isOpen, onClose, onConnectWifi }: SettingsModalProps) {
               value={tab.key}
               tabInactiveClasses={tabInactiveClasses}
             >
-              {tab.label}
+              <div className="flex items-center gap-2">
+                <TabIcon tabKey={tab.key} />
+                <span>{tab.label}</span>
+              </div>
             </Tabs.Tab>
           ))}
         </Tabs>
@@ -133,20 +161,41 @@ function SettingsModal({ isOpen, onClose, onConnectWifi }: SettingsModalProps) {
               buttonHoverClasses={buttonHoverClasses}
               isDarkTheme={isDarkTheme}
               onConnect={handleConnectWiFi}
+              connected={networkStatus.wifi_connected}
               connecting={isAuthenticatingWifi}
               connectResult={wifiAuthResult}
+              ssid={networkInfo?.wifi_ssid || ''}
             />
           )}
 
           {activeTab === 'status' && (
             <div className={`rounded-xl border p-4 text-sm ${panelClasses}`}>
-              <p className={`mb-2 font-medium ${isDarkTheme ? 'text-slate-100' : 'text-slate-900'}`}>System status</p>
-              <p className={`leading-6 ${mutedTextClasses}`}>No status information available yet. This section will be populated with telemetry, connection health, and rover diagnostics in a future update.</p>
+              <div className={`mb-2 font-medium ${isDarkTheme ? 'text-slate-100' : 'text-slate-900'}`}>System status</div>
+              <div className={`leading-6 ${mutedTextClasses}`}>
+                <div>
+                  <span className="font-medium">Wi-Fi SSID:</span> {networkInfo ? networkInfo.wifi_ssid : '---'}
+                </div>
+                <div>
+                  <span className="font-medium">Internet access:</span> {networkStatus.internet_available ? 'Available' : 'Unavailable'}
+                </div>
+                <div>
+                  <span className="font-medium">AP ip address:</span> {networkInfo.ap_ip}
+                </div>
+                <div>
+                  <span className="font-medium">LAN ip address:</span> {networkInfo.lan_ip}
+                </div>
+                <div>
+                  <span className="font-medium">WAN ip address:</span> {networkInfo.wan_ip}
+                </div>
+              </div>
             </div>
           )}
 
           {activeTab === 'about' && (
             <div className={`rounded-xl border p-4 text-sm leading-7 ${panelClasses}`}>
+              <div>
+                Version: <span className="font-medium">{__APP_VERSION__}</span>
+              </div>
               <p>
                 This rover dashboard provides a compact control surface for monitoring and operating a remote rover from a web browser. The interface is designed to keep core telemetry visible while giving quick access to controls such as the flashlight, arm state, and joystick input. The settings panel lets you personalize the experience to match your preferred layout and visibility needs, whether you are using it in a lab, on the field, or while testing from a mobile device.
               </p>
