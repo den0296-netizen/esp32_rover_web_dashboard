@@ -9,7 +9,7 @@ import Joystick from './components/Joystick';
 import SettingsModal from './components/SettingsModal';
 import VideoFeed from './components/VideoFeed';
 import WiFiStatus from './components/WiFiStatus';
-import { deadzone } from './utils';
+import { applySpeedLimit, deadzone } from './utils';
 import { useAppWebSocket } from './hooks/useAppWebSocket';
 import { useAppStore } from './store';
 
@@ -31,11 +31,12 @@ function App() {
 
   const [settingsOpen, setSettingsOpen] = useState(false);
 
-  const handleJoystickMove =useCallback((steering: number, throttle: number) => {
-    const speedLimit = Math.max(0, Math.min(100, roverSettings.speedLimit));
-    const adjustedThrottle = deadzone(Math.max(-speedLimit, Math.min(speedLimit, throttle)));
-    const adjustedSteering = deadzone(Math.max(-speedLimit, Math.min(speedLimit, steering)));
-
+  const handleJoystickMove = useCallback((steering: number, throttle: number) => {
+    // const speedLimit = Math.max(0, Math.min(100, roverSettings.speedLimit));
+    let adjustedThrottle = deadzone(throttle);
+    let adjustedSteering = deadzone(steering);
+    adjustedThrottle = applySpeedLimit(adjustedThrottle, roverSettings.speedLimit);
+    adjustedSteering = applySpeedLimit(adjustedSteering, roverSettings.speedLimit);
     console.log('Joystick move:', adjustedSteering, adjustedThrottle);
     drive({
       throttle: adjustedThrottle,
