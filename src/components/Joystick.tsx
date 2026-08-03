@@ -11,6 +11,8 @@ type JoystickProps = {
 function Joystick({ onMove, onRelease, position = 'right', theme = 'dark' }: JoystickProps) {
   const joystickZoneRef = useRef<HTMLDivElement>(null);
   const managerRef = useRef<ReturnType<typeof nipplejs.create> | null>(null);
+  const emitTimerRef = useRef<number | null>(null);
+  const latestMoveRef = useRef<{ steering: number; throttle: number } | null>(null);
   const onMoveRef = useRef(onMove);
   const onReleaseRef = useRef(onRelease);
 
@@ -41,6 +43,22 @@ function Joystick({ onMove, onRelease, position = 'right', theme = 'dark' }: Joy
 
     managerRef.current = manager;
 
+    const clearEmitTimer = () => {
+      if (emitTimerRef.current !== null) {
+        window.clearInterval(emitTimerRef.current);
+        emitTimerRef.current = null;
+      }
+    };
+
+    const emitLatestMove = () => {
+      const latestMove = latestMoveRef.current;
+      if (!latestMove) {
+        return;
+      }
+
+      onMoveRef.current?.(latestMove.steering, latestMove.throttle);
+    };
+
     manager.on('move', (evt) => {
       const { vector } = evt.data;
       if (!vector) {
@@ -49,15 +67,23 @@ function Joystick({ onMove, onRelease, position = 'right', theme = 'dark' }: Joy
 
       const steering = Math.round(vector.x * 100);
       const throttle = Math.round(vector.y * 100);
+      latestMoveRef.current = { steering, throttle };
 
-      onMoveRef.current?.(steering, throttle);
+      if (emitTimerRef.current === null) {
+        emitLatestMove();
+        emitTimerRef.current = window.setInterval(emitLatestMove, 50);
+      }
     });
 
     manager.on('end', () => {
+      clearEmitTimer();
+      latestMoveRef.current = null;
       onReleaseRef.current?.();
     });
 
     return () => {
+      clearEmitTimer();
+      latestMoveRef.current = null;
       managerRef.current?.destroy();
       managerRef.current = null;
     };
