@@ -9,7 +9,7 @@ export interface RoverSettingsSlice {
 }
 
 export const defaultRoverSettingsState: RoverSettingsState = {
-  speedLimit: 100, // Default speed limit percentage (or max value)
+  speedLimit: 10, // Default speed limit percentage (or max value)
 };
 
 export const createRoverSettingsSlice: StateCreator<

@@ -51,6 +51,9 @@ export interface NetworkInfoPayload {
   wan_ip: string;
 }
 
+export interface WSConnectedResult
+extends NetworkInfoPayload, NetworkStatusPayload, WifiSignalPayload {}
+
 export interface TelemetryData {
   battery_current: number;
   battery_voltage: number;
@@ -71,6 +74,7 @@ export type ClientAction = WsMessageHeader & RawClientAction;
 // Inbound events
 export type ServerEvent = WsMessageHeader &
   (
+    | { event: 'ws_connected'; payload: WSConnectedResult }
     | { event: 'wifi_authenticate'; payload: WifiAuthResult }
     | { event: 'flashlight_toggle'; payload: FlashlightResult }
     | { event: 'arm_toggle'; payload: ArmResult }

@@ -23,7 +23,7 @@ function RoverSettingsForm({ roverSettings, setRoverSettings, resetRoverSettings
                   type="number"
                   name="SpeedLimit"
                   id="SpeedLimit"
-                  min={0}
+                  min={10}
                   max={100}
                   value={roverSettings.speedLimit}
                   onChange={(event) => {

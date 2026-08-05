@@ -58,7 +58,7 @@ function App() {
 
   // Selectors from state slices
   const appearance = useAppStore((state) => state.appearance);
-  const roverSettings = useAppStore((state) => state.roverSettings);
+  const roverSettingsSpeedLimit = useAppStore((state) => state.roverSettings.speedLimit);
   const flashlightOn = useAppStore((state) => state.flashlightOn);
   const isArmed = useAppStore((state) => state.isArmed);
   const batteryStatus = useAppStore((state) => state.batteryStatus);
@@ -71,14 +71,14 @@ function App() {
     // const speedLimit = Math.max(0, Math.min(100, roverSettings.speedLimit));
     let adjustedThrottle = deadzone(throttle);
     let adjustedSteering = deadzone(steering);
-    adjustedThrottle = applySpeedLimit(adjustedThrottle, roverSettings.speedLimit);
-    adjustedSteering = applySpeedLimit(adjustedSteering, roverSettings.speedLimit);
+    adjustedThrottle = applySpeedLimit(adjustedThrottle, roverSettingsSpeedLimit);
+    adjustedSteering = applySpeedLimit(adjustedSteering, roverSettingsSpeedLimit);
     console.log('Joystick move:', adjustedSteering, adjustedThrottle);
     drive({
       throttle: adjustedThrottle,
       steering: adjustedSteering
     });
-  }, [roverSettings.speedLimit]);
+  }, [roverSettingsSpeedLimit, drive]);
 
   const handleJoystickRelease = () => {
     drive({

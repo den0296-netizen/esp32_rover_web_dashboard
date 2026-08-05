@@ -31,6 +31,12 @@ export function useAppWebSocket(socketUrl: string) {
         console.debug(`[WS Received] seq: ${data.seq}, version: ${data.version}`);
 
         switch (data.event) {
+          case 'ws_connected':
+            console.info('WebSocket connected:', data.payload);
+            handleNetworkInfoUpdate(data.payload);
+            handleNetworkStatusUpdate(data.payload);
+            handleWifiSignalUpdate(data.payload);
+            break;
           case 'wifi_authenticate':
             handleWifiAuthResponse(data.payload);
             break;
