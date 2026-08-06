@@ -5,7 +5,6 @@ interface WiFiFormProps {
     panelClasses: string;
     inputClasses: string;
     secondaryTextClasses: string;
-    buttonHoverClasses: string;
     isDarkTheme: boolean;
     onConnect: (ssid: string, password: string) => void;
     onManualDisconnect: () => void;
@@ -21,7 +20,6 @@ function WiFiForm({
     panelClasses,
     inputClasses,
     secondaryTextClasses,
-    buttonHoverClasses,
     isDarkTheme,
     onConnect,
     onManualDisconnect,

@@ -165,7 +165,6 @@ function SettingsModal({ isOpen, onClose, onConnectWifi, onManualDisconnectWifi 
               panelClasses={panelClasses}
               inputClasses={inputClasses}
               secondaryTextClasses={secondaryTextClasses}
-              buttonHoverClasses={buttonHoverClasses}
               isDarkTheme={isDarkTheme}
               onConnect={handleConnectWiFi}
               onManualDisconnect={handleManualDisconnectWifi}
