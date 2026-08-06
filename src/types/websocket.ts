@@ -15,6 +15,11 @@ export interface WifiAuthResult {
   message: string;
 }
 
+export interface WifiLogoutResult {
+  success: boolean;
+  message: string;
+}
+
 export interface FlashlightResult {
   flashlight_on: boolean;
 }
@@ -64,6 +69,7 @@ export interface TelemetryData {
 // --- Outbound Actions (Client -> Server) ---
 export type RawClientAction =
   | { action: 'wifi_authenticate'; payload: WifiAuthPayload }
+  | { action: 'wifi_logout' }
   | { action: 'flashlight_toggle' }
   | { action: 'arm_toggle' }
   | { action: 'drive'; payload: DrivePayload };
@@ -76,6 +82,7 @@ export type ServerEvent = WsMessageHeader &
   (
     | { event: 'ws_connected'; payload: WSConnectedResult }
     | { event: 'wifi_authenticate'; payload: WifiAuthResult }
+    | { event: 'wifi_logout'; payload: WifiLogoutResult }
     | { event: 'flashlight_toggle'; payload: FlashlightResult }
     | { event: 'arm_toggle'; payload: ArmResult }
     | { event: 'battery_status'; payload: BatteryStatusPayload }

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { WifiAuthResult } from "../types/websocket";
+import type { WifiAuthResult, WifiLogoutResult } from "../types/websocket";
 
 interface WiFiFormProps {
     panelClasses: string;
@@ -8,10 +8,13 @@ interface WiFiFormProps {
     buttonHoverClasses: string;
     isDarkTheme: boolean;
     onConnect: (ssid: string, password: string) => void;
+    onManualDisconnect: () => void;
     ssid: string;
     connected: boolean;
     connecting: boolean;
+    disconnecting: boolean;
     connectResult: WifiAuthResult | null;
+    disconnectResult: WifiLogoutResult | null;
 }
 
 function WiFiForm({
@@ -21,10 +24,13 @@ function WiFiForm({
     buttonHoverClasses,
     isDarkTheme,
     onConnect,
+    onManualDisconnect,
     ssid,
     connected,
     connecting,
-    connectResult
+    disconnecting,
+    connectResult,
+    disconnectResult
 }: WiFiFormProps) {
     const [ssidValue, setSsidValue] = useState(ssid);
     const [password, setPassword] = useState('');
@@ -32,14 +38,36 @@ function WiFiForm({
       onConnect(ssidValue, password);
     }
 
+    const handleManualDisconenct = () => {
+      onManualDisconnect();
+      setSsidValue('');
+      setPassword('');
+    }
+
     return (
         <>
          <div className={`rounded-xl border p-4 ${panelClasses}`}>
               <div className="space-y-4">
                 {(connected && ssid) && (
-                  <div className={`text-sm font-medium ${isDarkTheme ? 'text-green-500' : 'text-green-700'}`}>
-                    Connected to Wi-Fi network: <span className="font-semibold">{ssid}</span>
-                  </div>
+                  <>
+                    <div className={`text-sm font-medium ${isDarkTheme ? 'text-green-500' : 'text-green-700'}`}>
+                      Connected to Wi-Fi network: <span className="font-semibold">{ssid}</span>
+                    </div>
+                    <button
+                          type="button"
+                          className={`rounded-full cursor-pointer bg-red-500 px-4 py-2 text-sm font-semibold text-slate-950 shadow-lg shadow-red-500/20 transition hover:bg-red-400 ${isDarkTheme ? 'text-slate-300' : 'text-slate-700'}`}
+                          disabled={connecting}
+                          onClick={handleManualDisconenct}
+                      >
+                          Disconnect
+                    </button>
+                    {disconnecting && <p className="mt-2 text-sm text-sky-500">Disconnecting...</p>}
+                    {disconnectResult && (
+                        <p className={`mt-2 text-sm ${disconnectResult.success ? 'text-green-500' : 'text-red-500'}`}>
+                            {disconnectResult.message}
+                        </p>
+                    )}
+                  </>
                 )}
                 <div>
                   <label htmlFor="WiFiName" className={`mb-1 block text-sm font-medium ${secondaryTextClasses}`}>
@@ -70,7 +98,7 @@ function WiFiForm({
                 <div>
                     <button
                         type="button"
-                        className={`rounded-full bg-sky-500 px-4 py-2 text-sm font-semibold text-slate-950 shadow-lg shadow-sky-500/20 transition hover:bg-sky-400 ${buttonHoverClasses} ${isDarkTheme ? 'text-slate-300' : 'text-slate-700'}`}
+                        className={`rounded-full cursor-pointer bg-sky-500 px-4 py-2 text-sm font-semibold text-slate-950 shadow-lg shadow-sky-500/20 transition hover:bg-sky-400 ${isDarkTheme ? 'text-slate-300' : 'text-slate-700'}`}
                         disabled={connecting}
                         onClick={handleConnect}
                     >

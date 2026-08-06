@@ -16,6 +16,7 @@ type SettingsModalProps = {
   isOpen: boolean;
   onClose: () => void;
   onConnectWifi?: (ssid: string, password: string) => void;
+  onManualDisconnectWifi: () => void;
 };
 
 type TabKey = 'appearance' | 'rover' | 'wifi' | 'status' | 'about';
@@ -43,7 +44,7 @@ function TabIcon({ tabKey }: { tabKey: TabKey }) {
   }
 }
 
-function SettingsModal({ isOpen, onClose, onConnectWifi }: SettingsModalProps) {
+function SettingsModal({ isOpen, onClose, onConnectWifi, onManualDisconnectWifi }: SettingsModalProps) {
   if (!isOpen) {
     return null;
   }
@@ -56,13 +57,19 @@ function SettingsModal({ isOpen, onClose, onConnectWifi }: SettingsModalProps) {
   const setRoverSettings = useAppStore((state) => state.setRoverSettings);
   const resetRoverSettings = useAppStore((state) => state.resetRoverSettings);
   const isAuthenticatingWifi = useAppStore((state) => state.isAuthenticatingWifi);
+  const isLoggingOutWifi = useAppStore((state) => state.isLoggingOutWifi);
   const wifiAuthResult = useAppStore((state) => state.wifiAuthResult);
+  const wifiLogoutResult = useAppStore((state) => state.wifiLogoutResult);
   const networkStatus = useAppStore((state) => state.networkStatus);
   const networkInfo = useAppStore((state) => state.networkInfo);
   
   const handleConnectWiFi = (ssid: string, password: string) => {
     onConnectWifi?.(ssid, password);
   };
+
+  const handleManualDisconnectWifi = () => {
+    onManualDisconnectWifi?.();
+  }
 
   const isDarkTheme = appearance.theme === 'dark';
   const shellClasses = isDarkTheme
@@ -161,9 +168,12 @@ function SettingsModal({ isOpen, onClose, onConnectWifi }: SettingsModalProps) {
               buttonHoverClasses={buttonHoverClasses}
               isDarkTheme={isDarkTheme}
               onConnect={handleConnectWiFi}
+              onManualDisconnect={handleManualDisconnectWifi}
               connected={networkStatus.wifi_connected}
               connecting={isAuthenticatingWifi}
+              disconnecting={isLoggingOutWifi}
               connectResult={wifiAuthResult}
+              disconnectResult={wifiLogoutResult}
               ssid={networkInfo?.wifi_ssid || ''}
             />
           )}

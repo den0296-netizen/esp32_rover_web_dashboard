@@ -53,7 +53,8 @@ function App() {
     toggleFlashlight,
     toggleArm,
     drive,
-    authenticateWifi
+    authenticateWifi,
+    logoutWifi
   } = useAppWebSocket(wsUrl + '?token=valid');
 
   // Selectors from state slices
@@ -90,6 +91,10 @@ function App() {
   const handleConnectWiFi = useCallback((ssid: string, password: string) => {
     authenticateWifi({ ssid, password });
   }, [authenticateWifi]);
+
+  const handleManualDisconnectWifi = useCallback(() => {
+    logoutWifi();
+  }, [logoutWifi]);
 
   const renderControlPad = () => {
     if (appearance.controlType === 'arrow_pad') {
@@ -128,6 +133,7 @@ function App() {
         isOpen={settingsOpen}
         onClose={() => setSettingsOpen(false)}
         onConnectWifi={handleConnectWiFi}
+        onManualDisconnectWifi={handleManualDisconnectWifi}
       />
     </div>
   );

@@ -12,6 +12,7 @@ export function useAppWebSocket(socketUrl: string) {
   const seqRef = useRef<number>(1);
   // Pull handler functions from Zustand
   const handleWifiAuthResponse = useAppStore((state) => state.handleWifiAuthResponse);
+  const handleWifiLogoutResponse = useAppStore((state) => state.handleWifiLogoutResponse);
   const handleFlashlightResponse = useAppStore((state) => state.handleFlashlightResponse);
   const handleArmToggleResponse = useAppStore((state) => state.handleArmToggleResponse);
   const handleBatteryStatusUpdate = useAppStore((state) => state.handleBatteryStatusUpdate);
@@ -20,6 +21,7 @@ export function useAppWebSocket(socketUrl: string) {
   const handleNetworkInfoUpdate = useAppStore((state) => state.handleNetworkInfoUpdate);
   const handleTelemetryUpdate = useAppStore((state) => state.handleTelemetryUpdate);
   const setAuthenticatingWifi = useAppStore((state) => state.setAuthenticatingWifi);
+  const setLoggingoutWifi = useAppStore((state) => state.setLoggingoutWifi);
   const setDriveState = useAppStore((state) => state.setDriveState);
 
   const { sendJsonMessage, readyState } = useWebSocket(socketUrl, {
@@ -39,6 +41,10 @@ export function useAppWebSocket(socketUrl: string) {
             break;
           case 'wifi_authenticate':
             handleWifiAuthResponse(data.payload);
+            break;
+          
+          case 'wifi_logout':
+            handleWifiLogoutResponse(data.payload);
             break;
 
           case 'flashlight_toggle':
@@ -94,6 +100,11 @@ export function useAppWebSocket(socketUrl: string) {
     sendAction({ action: 'wifi_authenticate', payload });
   };
 
+  const logoutWifi = () => {
+    setLoggingoutWifi(true);
+    sendAction({ action: 'wifi_logout' });
+  };
+
   const toggleFlashlight = () => {
     sendAction({ action: 'flashlight_toggle' });
   };
@@ -111,6 +122,7 @@ export function useAppWebSocket(socketUrl: string) {
     isConnected: readyState === ReadyState.OPEN,
     readyState,
     authenticateWifi,
+    logoutWifi,
     toggleFlashlight,
     toggleArm,
     drive,
