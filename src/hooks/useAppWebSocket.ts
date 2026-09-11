@@ -2,7 +2,7 @@
 import { useWebSocket } from 'react-use-websocket/dist/lib/use-websocket';
 import { ReadyState } from 'react-use-websocket/dist/lib/constants';
 import { useAppStore } from '../store';
-import type { DrivePayload, RawClientAction, ServerEvent, WifiAuthPayload } from '../types/websocket';
+import type { CameraServoPayload, DrivePayload, RawClientAction, ServerEvent, WifiAuthPayload } from '../types/websocket';
 import { useRef } from 'react';
 
 const CURRENT_API_VERSION = 1;
@@ -23,6 +23,7 @@ export function useAppWebSocket(socketUrl: string) {
   const setAuthenticatingWifi = useAppStore((state) => state.setAuthenticatingWifi);
   const setLoggingoutWifi = useAppStore((state) => state.setLoggingoutWifi);
   const setDriveState = useAppStore((state) => state.setDriveState);
+  const setCameraServoState = useAppStore((state) => state.setCameraServoState);
 
   const { sendJsonMessage, readyState } = useWebSocket(socketUrl, {
     onMessage: (event) => {
@@ -118,6 +119,11 @@ export function useAppWebSocket(socketUrl: string) {
     sendAction({ action: 'drive', payload });
   };
 
+  const cameraServo = (payload: CameraServoPayload) => {
+    setCameraServoState(payload);
+    sendAction({ action: 'camera_servo', payload });
+  };
+
   return {
     isConnected: readyState === ReadyState.OPEN,
     readyState,
@@ -126,5 +132,6 @@ export function useAppWebSocket(socketUrl: string) {
     toggleFlashlight,
     toggleArm,
     drive,
+    cameraServo,
   };
 }

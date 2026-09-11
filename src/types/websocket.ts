@@ -44,6 +44,10 @@ export interface DrivePayload {
   steering: number;
 }
 
+export interface CameraServoPayload {
+  pwd: number;
+}
+
 export interface NetworkStatusPayload {
   wifi_connected: boolean;
   internet_available: boolean;
@@ -72,7 +76,8 @@ export type RawClientAction =
   | { action: 'wifi_logout' }
   | { action: 'flashlight_toggle' }
   | { action: 'arm_toggle' }
-  | { action: 'drive'; payload: DrivePayload };
+  | { action: 'drive'; payload: DrivePayload }
+  | { action: 'camera_servo'; payload: CameraServoPayload };
 
 // Complete outbound message with headers
 export type ClientAction = WsMessageHeader & RawClientAction;

@@ -8,6 +8,7 @@ import { createArmSlice, type ArmSlice } from './slices/armSlice';
 import { createBatterySlice, type BatterySlice } from './slices/batterySlice';
 import { createWifiSignalSlice, type WifiSignalSlice } from './slices/wifiSignalSlice';
 import { createDriveSlice, type DriveSlice } from './slices/driveSlice';
+import { createCameraServoSlice, type CameraServoSlice } from './slices/cameraServoSlice';
 import { createNetworkStatusSlice, type NetworkStatusSlice } from './slices/networkStatusSlice';
 import { createNetworkInfoSlice, type NetworkInfoSlice } from './slices/networkInfoSlice';
 import { createAppearanceSlice, type AppearanceSlice } from './slices/appearanceSlice';
@@ -19,6 +20,7 @@ export type RootState = WifiSlice &
   BatterySlice &
   WifiSignalSlice &
   DriveSlice &
+  CameraServoSlice &
   NetworkStatusSlice &
   NetworkInfoSlice &
   AppearanceSlice &
@@ -34,6 +36,7 @@ export const useAppStore = create<RootState>()(
       ...createBatterySlice(...a),
       ...createWifiSignalSlice(...a),
       ...createDriveSlice(...a),
+      ...createCameraServoSlice(...a),
       ...createNetworkStatusSlice(...a),
       ...createNetworkInfoSlice(...a),
       ...createAppearanceSlice(...a),

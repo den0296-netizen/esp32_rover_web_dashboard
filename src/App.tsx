@@ -54,6 +54,7 @@ function App() {
     toggleFlashlight,
     toggleArm,
     drive,
+    cameraServo,
     authenticateWifi,
     logoutWifi
   } = useAppWebSocket(wsUrl + '?token=valid');
@@ -118,7 +119,10 @@ function App() {
           value={appearance.cameraPosition ?? 1500}
           placement={appearance.cameraPositionPlacement ?? 'right'}
           theme={appearance.theme}
-          onChange={(cameraPosition) => setAppearance({ cameraPosition })}
+          onChange={(cameraPosition) => {
+            setAppearance({ cameraPosition });
+            cameraServo({ pwd: cameraPosition });
+          }}
         />
 
         {renderControlPad()}
