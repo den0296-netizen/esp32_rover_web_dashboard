@@ -121,7 +121,7 @@ function App() {
           theme={appearance.theme}
           onChange={(cameraPosition) => {
             setAppearance({ cameraPosition });
-            cameraServo({ pwd: cameraPosition });
+            cameraServo({ pwm: cameraPosition });
           }}
         />
 

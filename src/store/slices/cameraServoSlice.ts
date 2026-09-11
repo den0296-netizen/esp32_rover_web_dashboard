@@ -9,7 +9,7 @@ export interface CameraServoSlice {
 
 export const createCameraServoSlice: StateCreator<RootState, [], [], CameraServoSlice> = (set) => ({
   cameraServoState: {
-    pwd: 1500,
+    pwm: 1500,
   },
 
   setCameraServoState: (payload) => set({

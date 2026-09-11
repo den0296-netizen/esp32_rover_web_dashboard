@@ -45,7 +45,7 @@ export interface DrivePayload {
 }
 
 export interface CameraServoPayload {
-  pwd: number;
+  pwm: number;
 }
 
 export interface NetworkStatusPayload {
