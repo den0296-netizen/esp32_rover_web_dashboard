@@ -13,6 +13,8 @@ export const defaultAppearanceState: AppearanceState = {
   controlPosition: 'right',
   controlType: 'joystick',
   flashlightPosition: 'left',
+  cameraPosition: 1500,
+  cameraPositionPlacement: 'right',
   showBatteryStatus: true,
   showSignalQuality: true,
   showVideoStream: true,

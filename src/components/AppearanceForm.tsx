@@ -92,6 +92,31 @@ function AppearanceForm({
             </div>
             </div>
             <div>
+            <label className={`mb-1 block text-sm font-medium ${secondaryTextClasses}`}>Camera slider position</label>
+            <div className="flex gap-3">
+                <label className={`flex flex-1 cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm ${panelClasses}`}>
+                <input
+                    type="radio"
+                    name="cameraPositionPlacement"
+                    value="left"
+                    checked={(appearance.cameraPositionPlacement ?? 'right') === 'left'}
+                    onChange={() => setAppearance({ cameraPositionPlacement: 'left' })}
+                />
+                <span>Left</span>
+                </label>
+                <label className={`flex flex-1 cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm ${panelClasses}`}>
+                <input
+                    type="radio"
+                    name="cameraPositionPlacement"
+                    value="right"
+                    checked={(appearance.cameraPositionPlacement ?? 'right') === 'right'}
+                    onChange={() => setAppearance({ cameraPositionPlacement: 'right' })}
+                />
+                <span>Right</span>
+                </label>
+            </div>
+            </div>
+            <div>
             <label className={`mb-1 block text-sm font-medium ${secondaryTextClasses}`}>Theme</label>
             <div className="flex gap-3">
                 <label className={`flex flex-1 cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm ${panelClasses}`}>

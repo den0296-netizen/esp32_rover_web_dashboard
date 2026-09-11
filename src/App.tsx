@@ -5,6 +5,7 @@ import './App.css';
 import ActionButtons from './components/ActionButtons';
 import ArrowPad from './components/ArrowPad';
 import BatteryStatus from './components/BatteryStatus';
+import CameraPositionSlider from './components/CameraPositionSlider';
 import Joystick from './components/Joystick';
 import SettingsModal from './components/SettingsModal';
 import VideoFeed from './components/VideoFeed';
@@ -59,6 +60,7 @@ function App() {
 
   // Selectors from state slices
   const appearance = useAppStore((state) => state.appearance);
+  const setAppearance = useAppStore((state) => state.setAppearance);
   const roverSettingsSpeedLimit = useAppStore((state) => state.roverSettings.speedLimit);
   const flashlightOn = useAppStore((state) => state.flashlightOn);
   const isArmed = useAppStore((state) => state.isArmed);
@@ -111,6 +113,13 @@ function App() {
 
         {appearance.showBatteryStatus && <BatteryStatus voltage={batteryStatus.voltage} current={batteryStatus.current} charge={batteryStatus.charge} />}
         {appearance.showSignalQuality && <WiFiStatus isConnected={networkStatus.wifi_connected} internetAvailable={networkStatus.internet_available} rssi={wifiSignal.rssi} />}
+
+        <CameraPositionSlider
+          value={appearance.cameraPosition ?? 1500}
+          placement={appearance.cameraPositionPlacement ?? 'right'}
+          theme={appearance.theme}
+          onChange={(cameraPosition) => setAppearance({ cameraPosition })}
+        />
 
         {renderControlPad()}
 
