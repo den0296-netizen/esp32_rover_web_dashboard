@@ -70,6 +70,47 @@
   }
 }
 
+.action-button {
+  position: relative;
+  overflow: hidden;
+  transition: transform 150ms ease, filter 150ms ease;
+
+  &::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 12px;
+    height: 12px;
+    border: 2px solid currentColor;
+    border-radius: 9999px;
+    pointer-events: none;
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0);
+  }
+
+  &:active {
+    transform: scale(0.9);
+    filter: brightness(1.25);
+
+    &::after {
+      animation: action-ripple 450ms ease-out;
+    }
+  }
+}
+
+@keyframes action-ripple {
+  0% {
+    opacity: 0.6;
+    transform: translate(-50%, -50%) scale(0);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(5);
+  }
+}
+
 #next-steps {
   display: flex;
   border-top: 1px solid var(--border);

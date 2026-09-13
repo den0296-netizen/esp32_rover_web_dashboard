@@ -3,17 +3,40 @@ import { useWebSocket } from 'react-use-websocket/dist/lib/use-websocket';
 import { ReadyState } from 'react-use-websocket/dist/lib/constants';
 import { useAppStore } from '../store';
 import type { CameraServoPayload, DrivePayload, RawClientAction, ServerEvent, WifiAuthPayload } from '../types/websocket';
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 
 const CURRENT_API_VERSION = 1;
+const AUDIO_SAMPLE_RATE = 16000;
+const DEFAULT_PLAYBACK_GAIN = 1.2;
+
+type AudioContextWindow = Window & typeof globalThis & {
+  webkitAudioContext?: typeof AudioContext;
+};
+
+const decodeUlaw = (value: number) => {
+  const invertedValue = (~value) & 0xff;
+  const magnitude = ((invertedValue & 0x0f) << 3) + 0x84;
+  const shiftedMagnitude = magnitude << ((invertedValue & 0x70) >> 4);
+  const sample = invertedValue & 0x80
+    ? 0x84 - shiftedMagnitude
+    : shiftedMagnitude - 0x84;
+
+  return sample / 32768;
+};
 
 export function useAppWebSocket(socketUrl: string) {
   // Local sequence counter reference across renders
   const seqRef = useRef<number>(1);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const nextAudioStartTimeRef = useRef(0);
+  const audioFrameCountRef = useRef(0);
+  const audioLockWarningLoggedRef = useRef(false);
+  const playbackGainRef = useRef(DEFAULT_PLAYBACK_GAIN);
   // Pull handler functions from Zustand
   const handleWifiAuthResponse = useAppStore((state) => state.handleWifiAuthResponse);
   const handleWifiLogoutResponse = useAppStore((state) => state.handleWifiLogoutResponse);
   const handleFlashlightResponse = useAppStore((state) => state.handleFlashlightResponse);
+  const handleMicrophoneMuteResponse = useAppStore((state) => state.handleMicrophoneMuteResponse);
   const handleArmToggleResponse = useAppStore((state) => state.handleArmToggleResponse);
   const handleBatteryStatusUpdate = useAppStore((state) => state.handleBatteryStatusUpdate);
   const handleWifiSignalUpdate = useAppStore((state) => state.handleWifiSignalUpdate);
@@ -25,8 +48,123 @@ export function useAppWebSocket(socketUrl: string) {
   const setDriveState = useAppStore((state) => state.setDriveState);
   const setCameraServoState = useAppStore((state) => state.setCameraServoState);
 
-  const { sendJsonMessage, readyState } = useWebSocket(socketUrl, {
+  const getAudioContext = () => {
+    if (audioContextRef.current) {
+      return audioContextRef.current;
+    }
+
+    const AudioContextConstructor = window.AudioContext
+      ?? (window as AudioContextWindow).webkitAudioContext;
+
+    if (!AudioContextConstructor) {
+      console.warn('Web Audio API is not supported by this browser.');
+      return null;
+    }
+
+    audioContextRef.current = new AudioContextConstructor({ sampleRate: AUDIO_SAMPLE_RATE });
+    return audioContextRef.current;
+  };
+
+  const playAudioFrame = async (data: ArrayBuffer | Blob) => {
+    const rawUlaw = data instanceof Blob
+      ? new Uint8Array(await data.arrayBuffer())
+      : new Uint8Array(data);
+
+    if (rawUlaw.length === 0) {
+      console.warn('Received an empty binary audio frame.');
+      return;
+    }
+
+    const decodedSamples = new Float32Array(rawUlaw.length);
+    const byteValues = new Set<number>();
+    let peak = 0;
+    let minimum = 1;
+    let maximum = -1;
+    let sumOfSquares = 0;
+
+    for (let index = 0; index < rawUlaw.length; index += 1) {
+      byteValues.add(rawUlaw[index]);
+      const sample = decodeUlaw(rawUlaw[index]);
+      decodedSamples[index] = sample;
+      peak = Math.max(peak, Math.abs(sample));
+      minimum = Math.min(minimum, sample);
+      maximum = Math.max(maximum, sample);
+      sumOfSquares += sample * sample;
+    }
+
+    audioFrameCountRef.current += 1;
+    const frameDuration = rawUlaw.length / AUDIO_SAMPLE_RATE;
+    const rms = Math.sqrt(sumOfSquares / rawUlaw.length);
+    if (audioFrameCountRef.current === 1 || audioFrameCountRef.current % 100 === 0) {
+      console.info('[Audio] μ-law frame valid:', {
+        frame: audioFrameCountRef.current,
+        bytes: rawUlaw.length,
+        uniqueBytes: byteValues.size,
+        firstBytes: Array.from(rawUlaw.slice(0, 16)).map((value) => value.toString(16).padStart(2, '0')).join(' '),
+        durationMs: Math.round(frameDuration * 1000),
+        minimum: minimum.toFixed(6),
+        maximum: maximum.toFixed(6),
+        peak: peak.toFixed(6),
+        rms: rms.toFixed(6),
+      });
+    }
+
+    const audioContext = audioContextRef.current;
+    if (!audioContext) {
+      if (!audioLockWarningLoggedRef.current) {
+        console.warn('[Audio] Frame received, but audio is locked. Click the microphone button to enable playback.');
+        audioLockWarningLoggedRef.current = true;
+      }
+      return;
+    }
+
+    if (audioContext.state === 'suspended') {
+      try {
+        await audioContext.resume();
+      } catch (error) {
+        console.warn('Audio playback is blocked. Click the microphone button to enable sound.', error);
+        return;
+      }
+    }
+
+    if (audioContext.state !== 'running') {
+      console.warn(`AudioContext is not running: ${audioContext.state}`);
+      return;
+    }
+
+    const audioBuffer = audioContext.createBuffer(1, rawUlaw.length, AUDIO_SAMPLE_RATE);
+    const channel = audioBuffer.getChannelData(0);
+
+    for (let index = 0; index < rawUlaw.length; index += 1) {
+      const amplifiedSample = decodedSamples[index] * playbackGainRef.current;
+      channel[index] = Math.max(-1, Math.min(1, amplifiedSample));
+    }
+
+    const source = audioContext.createBufferSource();
+    source.buffer = audioBuffer;
+    source.connect(audioContext.destination);
+
+    const now = audioContext.currentTime;
+    const nextStartTime = Math.max(nextAudioStartTimeRef.current, now);
+    source.start(nextStartTime);
+    nextAudioStartTimeRef.current = nextStartTime + audioBuffer.duration;
+  };
+
+  const { sendJsonMessage, readyState, getWebSocket } = useWebSocket(socketUrl, {
+    onOpen: () => {
+      const socket = getWebSocket();
+      if (socket instanceof WebSocket) {
+        socket.binaryType = 'arraybuffer';
+      }
+    },
     onMessage: (event) => {
+      if (typeof event.data !== 'string') {
+        void playAudioFrame(event.data).catch((error: unknown) => {
+          console.error('Failed to play binary audio frame:', error);
+        });
+        return;
+      }
+
       try {
         const data: ServerEvent = JSON.parse(event.data);
 
@@ -50,6 +188,10 @@ export function useAppWebSocket(socketUrl: string) {
 
           case 'flashlight_toggle':
             handleFlashlightResponse(data.payload);
+            break;
+
+          case 'microphone_toggle_mute':
+            handleMicrophoneMuteResponse(data.payload);
             break;
 
           case 'arm_toggle':
@@ -86,6 +228,13 @@ export function useAppWebSocket(socketUrl: string) {
     shouldReconnect: () => true, // Automatically reconnect
   });
 
+  useEffect(() => {
+    const socket = getWebSocket();
+    if (socket instanceof WebSocket) {
+      socket.binaryType = 'arraybuffer';
+    }
+  }, [getWebSocket, readyState]);
+
   // Automatically injects version and auto-incrementing seq into outgoing actions
   const sendAction = (rawAction: RawClientAction, version = CURRENT_API_VERSION) => {
     const currentSeq = seqRef.current++;
@@ -110,6 +259,20 @@ export function useAppWebSocket(socketUrl: string) {
     sendAction({ action: 'flashlight_toggle' });
   };
 
+  const toggleMicrophoneMute = () => {
+    const audioContext = getAudioContext();
+    if (audioContext?.state === 'suspended') {
+      void audioContext.resume().catch((error: unknown) => {
+        console.warn('Unable to resume audio playback:', error);
+      });
+    }
+    sendAction({ action: 'microphone_toggle_mute' });
+  };
+
+  const setPlaybackGain = (gain: number) => {
+    playbackGainRef.current = Math.max(1, Math.min(2, gain));
+  };
+
   const toggleArm = () => {
     sendAction({ action: 'arm_toggle' });
   };
@@ -130,6 +293,8 @@ export function useAppWebSocket(socketUrl: string) {
     authenticateWifi,
     logoutWifi,
     toggleFlashlight,
+    toggleMicrophoneMute,
+    setPlaybackGain,
     toggleArm,
     drive,
     cameraServo,

@@ -24,6 +24,10 @@ export interface FlashlightResult {
   flashlight_on: boolean;
 }
 
+export interface MicrophoneMuteResult {
+  microphone_muted: boolean;
+}
+
 export interface ArmResult {
   armed: boolean;
 }
@@ -75,6 +79,7 @@ export type RawClientAction =
   | { action: 'wifi_authenticate'; payload: WifiAuthPayload }
   | { action: 'wifi_logout' }
   | { action: 'flashlight_toggle' }
+  | { action: 'microphone_toggle_mute' }
   | { action: 'arm_toggle' }
   | { action: 'drive'; payload: DrivePayload }
   | { action: 'camera_servo'; payload: CameraServoPayload };
@@ -89,6 +94,7 @@ export type ServerEvent = WsMessageHeader &
     | { event: 'wifi_authenticate'; payload: WifiAuthResult }
     | { event: 'wifi_logout'; payload: WifiLogoutResult }
     | { event: 'flashlight_toggle'; payload: FlashlightResult }
+    | { event: 'microphone_toggle_mute'; payload: MicrophoneMuteResult }
     | { event: 'arm_toggle'; payload: ArmResult }
     | { event: 'battery_status'; payload: BatteryStatusPayload }
     | { event: 'wifi_rssi'; payload: WifiSignalPayload }

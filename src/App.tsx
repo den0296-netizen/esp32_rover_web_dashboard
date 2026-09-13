@@ -52,6 +52,8 @@ const wsUrl = normalizeWebSocketUrl(import.meta.env.VITE_WS_URL);
 function App() {
   const {
     toggleFlashlight,
+    toggleMicrophoneMute,
+    setPlaybackGain,
     toggleArm,
     drive,
     cameraServo,
@@ -64,6 +66,7 @@ function App() {
   const setAppearance = useAppStore((state) => state.setAppearance);
   const roverSettingsSpeedLimit = useAppStore((state) => state.roverSettings.speedLimit);
   const flashlightOn = useAppStore((state) => state.flashlightOn);
+  const microphoneMuted = useAppStore((state) => state.microphoneMuted);
   const isArmed = useAppStore((state) => state.isArmed);
   const batteryStatus = useAppStore((state) => state.batteryStatus);
   const wifiSignal = useAppStore((state) => state.wifiSignal);
@@ -129,14 +132,17 @@ function App() {
 
         <ActionButtons
           flashlightOn={flashlightOn}
+          microphoneMuted={microphoneMuted}
           armed={isArmed}
           flashlightPosition={appearance.flashlightPosition}
           onToggleFlashlight={toggleFlashlight}
+          onToggleMicrophoneMute={toggleMicrophoneMute}
+          onPlaybackGainChange={setPlaybackGain}
           onToggleArmed={toggleArm}
         />
 
         <div className="settings absolute left-5 top-5">
-          <button type="button" className="settings__button" onClick={() => setSettingsOpen(true)}>
+          <button type="button" className="action-button settings__button" onClick={() => setSettingsOpen(true)}>
             <CogIcon className="size-12" />
           </button>
         </div>
