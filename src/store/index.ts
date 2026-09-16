@@ -4,6 +4,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import { type WifiSlice, createWifiSlice } from './slices/wifiSlice';
 import { type FlashlightSlice, createFlashlightSlice } from './slices/flashlightSlice';
 import { type MicrophoneSlice, createMicrophoneSlice } from './slices/microphoneSlice';
+import { type VideoSlice, createVideoSlice } from './slices/videoSlice';
 import { type TelemetrySlice, createTelemetrySlice } from './slices/telemetrySlice';
 import { createArmSlice, type ArmSlice } from './slices/armSlice';
 import { createBatterySlice, type BatterySlice } from './slices/batterySlice';
@@ -18,6 +19,7 @@ import { createRoverSettingsSlice, type RoverSettingsSlice } from './slices/rove
 export type RootState = WifiSlice &
   FlashlightSlice &
   MicrophoneSlice &
+  VideoSlice &
   ArmSlice &
   BatterySlice &
   WifiSignalSlice &
@@ -35,6 +37,7 @@ export const useAppStore = create<RootState>()(
       ...createWifiSlice(...a),
       ...createFlashlightSlice(...a),
       ...createMicrophoneSlice(...a),
+      ...createVideoSlice(...a),
       ...createArmSlice(...a),
       ...createBatterySlice(...a),
       ...createWifiSignalSlice(...a),

@@ -65,7 +65,10 @@ export interface NetworkInfoPayload {
 }
 
 export interface WSConnectedResult
-extends NetworkInfoPayload, NetworkStatusPayload, WifiSignalPayload {}
+extends NetworkInfoPayload, NetworkStatusPayload, WifiSignalPayload {
+  flashlight_on?: boolean;
+  camera_servo?: CameraServoPayload;
+}
 
 export interface TelemetryData {
   battery_current: number;
@@ -96,6 +99,7 @@ export type ServerEvent = WsMessageHeader &
     | { event: 'flashlight_toggle'; payload: FlashlightResult }
     | { event: 'microphone_toggle_mute'; payload: MicrophoneMuteResult }
     | { event: 'arm_toggle'; payload: ArmResult }
+    | { event: 'camera_servo'; payload: CameraServoPayload }
     | { event: 'battery_status'; payload: BatteryStatusPayload }
     | { event: 'wifi_rssi'; payload: WifiSignalPayload }
     | { event: 'network_status'; payload: NetworkStatusPayload }

@@ -24,6 +24,7 @@ const decodeUlaw = (value: number) => {
   return sample / 32768;
 };
 
+
 export function useAppWebSocket(socketUrl: string) {
   // Local sequence counter reference across renders
   const seqRef = useRef<number>(1);
@@ -38,6 +39,7 @@ export function useAppWebSocket(socketUrl: string) {
   const handleFlashlightResponse = useAppStore((state) => state.handleFlashlightResponse);
   const handleMicrophoneMuteResponse = useAppStore((state) => state.handleMicrophoneMuteResponse);
   const handleArmToggleResponse = useAppStore((state) => state.handleArmToggleResponse);
+  const handleCameraServoUpdate = useAppStore((state) => state.handleCameraServoUpdate);
   const handleBatteryStatusUpdate = useAppStore((state) => state.handleBatteryStatusUpdate);
   const handleWifiSignalUpdate = useAppStore((state) => state.handleWifiSignalUpdate);
   const handleNetworkStatusUpdate = useAppStore((state) => state.handleNetworkStatusUpdate);
@@ -150,6 +152,10 @@ export function useAppWebSocket(socketUrl: string) {
     nextAudioStartTimeRef.current = nextStartTime + audioBuffer.duration;
   };
 
+  const handleVideoFrame = (data: ArrayBuffer) => {
+    useAppStore.getState().setVideoFrame(new Blob([data], { type: 'image/jpeg' }));
+  };
+
   const { sendJsonMessage, readyState, getWebSocket } = useWebSocket(socketUrl, {
     onOpen: () => {
       const socket = getWebSocket();
@@ -157,11 +163,40 @@ export function useAppWebSocket(socketUrl: string) {
         socket.binaryType = 'arraybuffer';
       }
     },
-    onMessage: (event) => {
+    onMessage: async (event) => {
       if (typeof event.data !== 'string') {
-        void playAudioFrame(event.data).catch((error: unknown) => {
-          console.error('Failed to play binary audio frame:', error);
-        });
+        const buffer = event.data instanceof Blob
+          ? await event.data.arrayBuffer()
+          : event.data;
+
+        const bytes = new Uint8Array(buffer);
+
+        if (bytes.length === 0) {
+          return;
+        }
+
+        const frameType = bytes[0];
+        const payload = buffer.slice(1);
+
+        switch (frameType) {
+          case 0x01:
+            // μ-law audio
+            void playAudioFrame(payload).catch((error: unknown) => {
+              console.error('Failed to play binary audio frame:', error);
+            });
+            break;
+
+          case 0x02:
+            // JPEG video
+            handleVideoFrame(payload);
+            break;
+
+          default:
+            console.warn(
+              `[WS] Unknown binary frame type: 0x${frameType.toString(16)}`
+            );
+        }
+
         return;
       }
 
@@ -177,6 +212,12 @@ export function useAppWebSocket(socketUrl: string) {
             handleNetworkInfoUpdate(data.payload);
             handleNetworkStatusUpdate(data.payload);
             handleWifiSignalUpdate(data.payload);
+            if (data.payload.flashlight_on !== undefined) {
+              handleFlashlightResponse({ flashlight_on: data.payload.flashlight_on });
+            }
+            if (data.payload.camera_servo !== undefined) {
+              handleCameraServoUpdate(data.payload.camera_servo);
+            }
             break;
           case 'wifi_authenticate':
             handleWifiAuthResponse(data.payload);
@@ -196,6 +237,10 @@ export function useAppWebSocket(socketUrl: string) {
 
           case 'arm_toggle':
             handleArmToggleResponse(data.payload);
+            break;
+
+          case 'camera_servo':
+            handleCameraServoUpdate(data.payload);
             break;
 
           case 'battery_status':

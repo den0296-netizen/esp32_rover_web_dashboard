@@ -5,6 +5,7 @@ import type { CameraServoPayload } from '../../types/websocket';
 export interface CameraServoSlice {
   cameraServoState: CameraServoPayload;
   setCameraServoState: (payload: CameraServoPayload) => void;
+  handleCameraServoUpdate: (payload: CameraServoPayload) => void;
 }
 
 export const createCameraServoSlice: StateCreator<RootState, [], [], CameraServoSlice> = (set) => ({
@@ -13,6 +14,10 @@ export const createCameraServoSlice: StateCreator<RootState, [], [], CameraServo
   },
 
   setCameraServoState: (payload) => set({
+    cameraServoState: payload,
+  }),
+
+  handleCameraServoUpdate: (payload) => set({
     cameraServoState: payload,
   }),
 });

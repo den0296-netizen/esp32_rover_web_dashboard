@@ -14,13 +14,6 @@ import { applySpeedLimit, deadzone } from './utils';
 import { useAppWebSocket } from './hooks/useAppWebSocket';
 import { useAppStore } from './store';
 
-const videoStream = (() => {
-  if (!import.meta.env.VITE_STREAM_URL) {
-    return location.origin + ':81/stream';
-  }
-  return import.meta.env.VITE_STREAM_URL;
-})();
-
 const normalizeWebSocketUrl = (value?: string) => {
   if (!value) {
     return location.origin.replace(/^http/, 'ws') + '/ws';
@@ -67,6 +60,7 @@ function App() {
   const roverSettingsSpeedLimit = useAppStore((state) => state.roverSettings.speedLimit);
   const flashlightOn = useAppStore((state) => state.flashlightOn);
   const microphoneMuted = useAppStore((state) => state.microphoneMuted);
+  const cameraServoState = useAppStore((state) => state.cameraServoState);
   const isArmed = useAppStore((state) => state.isArmed);
   const batteryStatus = useAppStore((state) => state.batteryStatus);
   const wifiSignal = useAppStore((state) => state.wifiSignal);
@@ -113,13 +107,13 @@ function App() {
   return (
     <div className={`wrapper relative flex h-screen w-screen ${appearance.theme === 'light' ? 'bg-slate-100 text-slate-900' : 'bg-slate-950 text-slate-100'}`}>
       <div className="osd relative flex h-full w-full flex-1 flex-col items-center justify-center">
-        {appearance.showVideoStream ? <VideoFeed src={videoStream} />: <h2>Video stream is disabled</h2>}
+        {appearance.showVideoStream ? <VideoFeed />: <h2>Video stream is disabled</h2>}
 
         {appearance.showBatteryStatus && <BatteryStatus voltage={batteryStatus.voltage} current={batteryStatus.current} charge={batteryStatus.charge} />}
         {appearance.showSignalQuality && <WiFiStatus isConnected={networkStatus.wifi_connected} internetAvailable={networkStatus.internet_available} rssi={wifiSignal.rssi} />}
 
         <CameraPositionSlider
-          value={appearance.cameraPosition ?? 1500}
+          value={cameraServoState.pwm}
           placement={appearance.cameraPositionPlacement ?? 'right'}
           theme={appearance.theme}
           onChange={(cameraPosition) => {
