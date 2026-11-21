@@ -41,7 +41,7 @@ function VideoFeed() {
       ref={canvasRef}
       className="video-stream"
       aria-label="Rover camera feed"
-      style={{ width: 600, height: 400, background: 'rgba(181, 35, 35, 1)' }}
+      style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 600, height: 400, background: 'rgba(181, 35, 35, 1)' }}
     />
   );
 }

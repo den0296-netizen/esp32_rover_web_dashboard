@@ -110,16 +110,25 @@ function ArrowPad({ onMove, onRelease, position = 'right', theme = 'dark' }: Arr
   }, []);
 
   return (
-    <div className={`fixed bottom-8 ${position === 'left' ? 'left-[60px]' : 'right-[60px]'} flex flex-col items-center gap-2 rounded-3xl border p-3 shadow-lg backdrop-blur-sm ${containerClasses}`}>
+    <div
+      className={`arrow-pad fixed bottom-8 ${position === 'left' ? 'left-[60px]' : 'right-[60px]'} flex flex-col items-center gap-2 rounded-3xl border p-3 shadow-lg backdrop-blur-sm ${containerClasses}`}
+      onContextMenu={(event) => event.preventDefault()}
+    >
       <div className="flex gap-2">
         <div className="h-12 w-12" />
         <button
           type="button"
           className={`flex h-12 w-12 items-center justify-center rounded-xl border transition active:scale-95 ${buttonClasses}`}
-          onPointerDown={() => startEmission(0, 100)}
+          onPointerDown={(event) => {
+            event.preventDefault();
+            startEmission(0, 100);
+          }}
           onPointerUp={stopEmission}
           onPointerLeave={stopEmission}
           onPointerCancel={stopEmission}
+          onContextMenu={(event) => event.preventDefault()}
+          onDragStart={(event) => event.preventDefault()}
+          draggable={false}
           aria-label="Move forward"
         >
           <ArrowUpIcon className="h-6 w-6" />
@@ -130,10 +139,16 @@ function ArrowPad({ onMove, onRelease, position = 'right', theme = 'dark' }: Arr
         <button
           type="button"
           className={`flex h-12 w-12 items-center justify-center rounded-xl border transition active:scale-95 ${buttonClasses}`}
-          onPointerDown={() => startEmission(-100, 0)}
+          onPointerDown={(event) => {
+            event.preventDefault();
+            startEmission(-100, 0);
+          }}
           onPointerUp={stopEmission}
           onPointerLeave={stopEmission}
           onPointerCancel={stopEmission}
+          onContextMenu={(event) => event.preventDefault()}
+          onDragStart={(event) => event.preventDefault()}
+          draggable={false}
           aria-label="Move left"
         >
           <ArrowLeftIcon className="h-6 w-6" />
@@ -141,10 +156,16 @@ function ArrowPad({ onMove, onRelease, position = 'right', theme = 'dark' }: Arr
         <button
           type="button"
           className={`flex h-12 w-12 items-center justify-center rounded-xl border transition active:scale-95 ${buttonClasses}`}
-          onPointerDown={() => startEmission(0, -100)}
+          onPointerDown={(event) => {
+            event.preventDefault();
+            startEmission(0, -100);
+          }}
           onPointerUp={stopEmission}
           onPointerLeave={stopEmission}
           onPointerCancel={stopEmission}
+          onContextMenu={(event) => event.preventDefault()}
+          onDragStart={(event) => event.preventDefault()}
+          draggable={false}
           aria-label="Move backward"
         >
           <ArrowDownIcon className="h-6 w-6" />
@@ -152,10 +173,16 @@ function ArrowPad({ onMove, onRelease, position = 'right', theme = 'dark' }: Arr
         <button
           type="button"
           className={`flex h-12 w-12 items-center justify-center rounded-xl border transition active:scale-95 ${buttonClasses}`}
-          onPointerDown={() => startEmission(100, 0)}
+          onPointerDown={(event) => {
+            event.preventDefault();
+            startEmission(100, 0);
+          }}
           onPointerUp={stopEmission}
           onPointerLeave={stopEmission}
           onPointerCancel={stopEmission}
+          onContextMenu={(event) => event.preventDefault()}
+          onDragStart={(event) => event.preventDefault()}
+          draggable={false}
           aria-label="Move right"
         >
           <ArrowRightIcon className="h-6 w-6" />
