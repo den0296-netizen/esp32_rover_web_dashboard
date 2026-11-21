@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { ArrowUpIcon, ArrowDownIcon, ArrowLeftIcon, ArrowRightIcon } from '@heroicons/react/24/solid';
 
 type ArrowPadProps = {
   onMove?: (steering: number, throttle: number) => void;
@@ -121,7 +122,7 @@ function ArrowPad({ onMove, onRelease, position = 'right', theme = 'dark' }: Arr
           onPointerCancel={stopEmission}
           aria-label="Move forward"
         >
-          ↑
+          <ArrowUpIcon className="h-6 w-6" />
         </button>
         <div className="h-12 w-12" />
       </div>
@@ -135,7 +136,7 @@ function ArrowPad({ onMove, onRelease, position = 'right', theme = 'dark' }: Arr
           onPointerCancel={stopEmission}
           aria-label="Move left"
         >
-          ←
+          <ArrowLeftIcon className="h-6 w-6" />
         </button>
         <button
           type="button"
@@ -146,7 +147,7 @@ function ArrowPad({ onMove, onRelease, position = 'right', theme = 'dark' }: Arr
           onPointerCancel={stopEmission}
           aria-label="Move backward"
         >
-          ↓
+          <ArrowDownIcon className="h-6 w-6" />
         </button>
         <button
           type="button"
@@ -157,7 +158,7 @@ function ArrowPad({ onMove, onRelease, position = 'right', theme = 'dark' }: Arr
           onPointerCancel={stopEmission}
           aria-label="Move right"
         >
-          →
+          <ArrowRightIcon className="h-6 w-6" />
         </button>
       </div>
     </div>
