@@ -135,7 +135,7 @@ function App() {
           onToggleArmed={toggleArm}
         />
 
-        <div className="settings absolute left-5 top-5">
+        <div className="settings fixed left-5 top-5">
           <button type="button" className="action-button settings__button" onClick={() => setSettingsOpen(true)}>
             <CogIcon className="size-12" />
           </button>

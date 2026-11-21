@@ -18,7 +18,7 @@ function ChargeIcon({ charge }: { charge: number }) {
 
 function BatteryStatus({ voltage, current, charge }: BatteryStatusProps) {
   return (
-    <div className="battery-status absolute bottom-5 left-5">
+    <div className="battery-status fixed bottom-5 left-5">
       <div className="battery-status__voltage">Voltage: {voltage?.toFixed(2)} V</div>
       <div className="battery-status__current">Current: {current?.toFixed(2)} A</div>
       <div className="battery-status__remaining flex flex-row align-center gap-1 justify-center items-center">

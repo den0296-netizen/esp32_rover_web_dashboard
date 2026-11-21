@@ -12,7 +12,7 @@ function CameraPositionSlider({ value, placement, theme, onChange }: CameraPosit
 
   return (
     <div
-      className={`absolute top-1/2 z-10 flex -translate-y-1/2 flex-col items-center gap-2 ${placement === 'left' ? 'left-5' : 'right-5'}`}
+      className={`fixed top-1/2 z-10 flex -translate-y-1/2 flex-col items-center gap-2 ${placement === 'left' ? 'left-[15px]' : 'right-[15px]'}`}
     >
       <label
         htmlFor="camera-position-slider"

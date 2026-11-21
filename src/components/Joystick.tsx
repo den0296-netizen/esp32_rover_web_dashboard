@@ -35,8 +35,8 @@ function Joystick({ onMove, onRelease, position = 'right', theme = 'dark' }: Joy
       color: theme === 'dark' ? '#ffffffb6' : '#0000ff78',
       size: 150,
       position: {
-        right: position === 'right' ? '120px' : undefined,
-        left: position === 'left' ? '120px' : undefined,
+        right: position === 'right' ? '150px' : undefined,
+        left: position === 'left' ? '150px' : undefined,
         bottom: '120px'
       }
     });
@@ -90,7 +90,7 @@ function Joystick({ onMove, onRelease, position = 'right', theme = 'dark' }: Joy
   }, [position, theme]);
 
   return (
-    <div className="joystick absolute top-0 left-0 bottom-0 right-0" ref={joystickZoneRef} />
+    <div className="joystick fixed top-0 left-0 bottom-0 right-0" ref={joystickZoneRef} />
   );
 }
 

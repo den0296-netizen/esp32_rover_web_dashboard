@@ -20,7 +20,7 @@ type WiFiStatusProps = {
 function WiFiStatus({ isConnected, internetAvailable, rssi }: WiFiStatusProps) {
   const linkQuality = getSignalQuality(rssi);
   return (
-    <div className="wi-fi-status absolute top-5 right-5">
+    <div className="wi-fi-status fixed top-5 right-5">
       <div className="wi-fi-status__internet flex flex-row align-center gap-1 justify-left items-center">
         <span>Internet access: {internetAvailable ? 'Available' : 'Unavailable'}</span>
         {internetAvailable ? <LinkIcon className="w-5 h-5" /> : <LinkSlashIcon className="w-5 h-5" />}

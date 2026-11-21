@@ -110,7 +110,7 @@ function ArrowPad({ onMove, onRelease, position = 'right', theme = 'dark' }: Arr
   }, []);
 
   return (
-    <div className={`absolute bottom-8 ${position === 'left' ? 'left-8' : 'right-8'} flex flex-col items-center gap-2 rounded-3xl border p-3 shadow-lg backdrop-blur-sm ${containerClasses}`}>
+    <div className={`fixed bottom-8 ${position === 'left' ? 'left-[60px]' : 'right-[60px]'} flex flex-col items-center gap-2 rounded-3xl border p-3 shadow-lg backdrop-blur-sm ${containerClasses}`}>
       <div className="flex gap-2">
         <div className="h-12 w-12" />
         <button
